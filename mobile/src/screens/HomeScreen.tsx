@@ -13,6 +13,7 @@ import { UserAvatar } from '../components/UserAvatar';
 import { OccurrenceCounter } from '../components/OccurrenceCounter';
 import { LevelCard } from '../components/LevelCard';
 import { QuickActionCard } from '../components/QuickActionCard';
+import { RankPosition, useTopContributors } from '../components/TopContributors';
 import { getRelativeTime } from '../utils/date';
 import { LeafletMap } from '../components/LeafletMap';
 import { supabase } from '../services/supabase';
@@ -101,6 +102,7 @@ export const HomeScreen = () => {
   const [totalReports, setTotalReports] = useState(0);
   const [levelProgress, setLevelProgress] = useState<LevelProgress | null>(null);
   const [loadingStats, setLoadingStats] = useState(true);
+  const ranking = useTopContributors(3);
 
   const loadStats = useCallback(async () => {
     if (!user?.id) return;
@@ -173,17 +175,6 @@ export const HomeScreen = () => {
       description: r.neighborhood,
     }));
 
-  const rankingData = Object.values(
-    processedReports.reduce((acc, r) => {
-      const userName = r.userName || 'Anônimo';
-      if (!acc[userName]) {
-        acc[userName] = { name: userName, avatar: r.userAvatar, isCustom: r.isCustomAvatar, count: 0 };
-      }
-      acc[userName].count++;
-      return acc;
-    }, {} as Record<string, any>)
-  ).sort((a, b) => b.count - a.count).slice(0, 5);
-
   if (loading) {
     return (
       <View style={[styles.safe, { backgroundColor: theme.colors.background, justifyContent: 'center', alignItems: 'center' }]}>
@@ -232,7 +223,7 @@ export const HomeScreen = () => {
                 <ActivityIndicator color={theme.colors.primary} />
               </View>
             ) : (
-              <LevelCard progress={levelProgress} />
+              <LevelCard progress={levelProgress} onPress={() => navigation.navigate('Levels')} />
             )}
           </View>
 
@@ -258,29 +249,45 @@ export const HomeScreen = () => {
           {/* Ranking */}
           <View style={styles.rankingSection}>
             <View style={styles.sectionTitleRow}>
-              <Text style={[styles.sectionTitle, { color: theme.colors.textPrimary }]}>Top Colaboradores</Text>
+              <Text style={[styles.sectionTitle, { color: theme.colors.textPrimary }]}>Top 3 Colaboradores</Text>
               <Feather name="award" size={16} color={theme.colors.primary} />
             </View>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.rankingScroll}>
-              {rankingData.map((item, i) => (
-                <View key={item.name} style={[styles.rankingCard, { backgroundColor: theme.colors.surface1, borderColor: theme.colors.border }]}>
-                  <View style={styles.rankBadge}>
-                    {i < 3 ? (
-                      <Feather name="award" size={16} color={i === 0 ? '#FACC15' : i === 1 ? '#94A3B8' : '#B45309'} />
-                    ) : (
-                      <Text style={[styles.rankText, { color: theme.colors.textMuted }]}>#{i + 1}</Text>
-                    )}
+            {ranking.loading ? (
+              <View style={[styles.loadingBox, styles.rankingMessage, { backgroundColor: theme.colors.surface1, borderColor: theme.colors.border }]}>
+                <ActivityIndicator color={theme.colors.primary} />
+              </View>
+            ) : ranking.error || ranking.items.length === 0 ? (
+              <View style={[styles.loadingBox, styles.rankingMessage, { backgroundColor: theme.colors.surface1, borderColor: theme.colors.border }]}>
+                <Text style={[styles.emptySub, { color: theme.colors.textMuted }]}>
+                  {ranking.error ?? 'Ainda não há colaboradores com reportes aprovados.'}
+                </Text>
+              </View>
+            ) : (
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.rankingScroll}>
+                {ranking.items.map((item) => (
+                  <View
+                    key={item.userId}
+                    style={[styles.rankingCard, {
+                      backgroundColor: theme.colors.surface1,
+                      borderColor: item.userId === user.id ? theme.colors.primary : theme.colors.border,
+                    }]}
+                  >
+                    <View style={styles.rankBadge}>
+                      <RankPosition position={item.position} />
+                    </View>
+                    <UserAvatar user={{ name: item.name, avatar: item.avatar, isCustomAvatar: item.isCustomAvatar }} size={48} />
+                    <Text style={[styles.rankingName, { color: theme.colors.textPrimary }]} numberOfLines={1}>
+                      {item.name.split(' ')[0]}
+                    </Text>
+                    <View style={[styles.reportCountBadge, { backgroundColor: theme.colors.primary + '15' }]}>
+                      <Text style={[styles.reportCountText, { color: theme.colors.primary }]}>
+                        {item.approvedReports} aprovado{item.approvedReports === 1 ? '' : 's'}
+                      </Text>
+                    </View>
                   </View>
-                  <UserAvatar user={{ name: item.name, avatar: item.avatar, isCustomAvatar: item.isCustom }} size={48} />
-                  <Text style={[styles.rankingName, { color: theme.colors.textPrimary }]} numberOfLines={1}>
-                    {item.name.split(' ')[0]}
-                  </Text>
-                  <View style={[styles.reportCountBadge, { backgroundColor: theme.colors.primary + '15' }]}>
-                    <Text style={[styles.reportCountText, { color: theme.colors.primary }]}>{item.count} reportes</Text>
-                  </View>
-                </View>
-              ))}
-            </ScrollView>
+                ))}
+              </ScrollView>
+            )}
           </View>
 
           {/* Mapa embedded */}
@@ -440,6 +447,7 @@ const styles = StyleSheet.create({
 
   rankingSection: { marginBottom: spacing.xl },
   rankingScroll: { paddingHorizontal: spacing.lg, gap: spacing.md },
+  rankingMessage: { marginHorizontal: spacing.lg, padding: spacing.lg },
   rankingCard: { width: 120, borderRadius: radius.lg, padding: spacing.lg, alignItems: 'center', borderWidth: 1, position: 'relative' },
   rankBadge: { position: 'absolute', top: spacing.xs, left: spacing.xs },
   rankText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold },

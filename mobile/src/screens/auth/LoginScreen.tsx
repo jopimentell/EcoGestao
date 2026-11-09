@@ -216,9 +216,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row', 
     alignItems: 'center', 
     gap: staticTheme.spacing.sm,
-    width: '100%',          // 👈 NOVO
-    maxWidth: 480,          // 👈 NOVO
-    alignSelf: 'center',    // 👈 NOVO
+    width: '100%',          
+    maxWidth: 480,          
+    alignSelf: 'center',   
   },
   dividerLine: { flex: 1, height: 1, backgroundColor: staticTheme.colors.border },
   dividerText: { color: staticTheme.colors.textMuted, fontSize: 12, fontFamily: staticTheme.typography.fontFamily.regular },

@@ -69,6 +69,36 @@ export const shadows = {
   },
 } as const;
 
+// Layout Web Desktop (usado pelos arquivos .web.tsx)
+export const layout = {
+  desktopBreakpoint: 900,
+  maxContentWidth:   1200,
+  maxFormWidth:      480,
+  sidebarWidth:      248,
+  sidePanelWidth:    340,
+  borderWidth:       1,
+  controlHeight:     44,
+  mapPreviewHeight:  320,
+  mapPickerHeight:   360,
+  cardImageHeight:   180,
+  heroImageHeight:   380,
+  thumbnailSize:     88,
+  avatarLg:          72,
+  textAreaHeight:    120,
+} as const;
+
+// Sufixos de opacidade (hex alpha) para tingir cores do tema: color + tint.soft
+export const tint = {
+  subtle: '14',
+  soft:   '22',
+  medium: '44',
+  strong: '55',
+  overlay: 'CC',
+} as const;
+
+// Cor de conteúdo sobre fundos de destaque (botões primários, badges sólidos)
+export const onAccentColor = '#FFFFFF';
+
 export const materials = [
   'Óleo de Cozinha',
   'Eletrônicos',

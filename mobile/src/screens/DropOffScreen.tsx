@@ -8,9 +8,11 @@ import { Feather } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useDropOff } from '../context/DropOffContext';
 import { useTheme } from '../context/ThemeContext';
+import { LeafletMap } from '../components/LeafletMap';
 import type { DropOffPoint, NewDropOffPoint } from '../types';
 import {
-  fontSize, fontWeight, iconSize, lineHeight, materials, radius, shadows, spacing,
+  fontSize, fontWeight, iconSize, layout, lineHeight, materials, onAccentColor, radius,
+  severityColors, shadows, spacing,
 } from '../theme/designSystem';
 
 /* ---------- Card ---------- */
@@ -154,6 +156,19 @@ export const DropOffScreen: React.FC = () => {
   const { theme } = useTheme();
   const { points, loading, error, add } = useDropOff();
   const [modalOpen, setModalOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
+
+  const markers = points
+    .filter((p) => p.latitude != null && p.longitude != null)
+    .map((p) => ({
+      id: p.id,
+      lat: p.latitude as number,
+      lng: p.longitude as number,
+      color: theme.colors.primary,
+      title: p.name,
+      description: p.address,
+    }));
+  const withoutCoords = points.length - markers.length;
 
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: theme.colors.background }]} edges={['top', 'bottom']}>
@@ -167,25 +182,50 @@ export const DropOffScreen: React.FC = () => {
             {points.length} ponto{points.length === 1 ? '' : 's'} cadastrado{points.length === 1 ? '' : 's'}
           </Text>
         </View>
-        <Pressable
-          onPress={() => setModalOpen(true)}
-          style={({ pressed }) => [styles.fab, { backgroundColor: theme.colors.primary }, pressed && { opacity: 0.85 }]}
-        >
-          <Feather name="plus" size={iconSize.md} color="#FFF" />
-        </Pressable>
+      </View>
+
+      {/* Toggle Lista / Mapa */}
+      <View style={[styles.toggle, { backgroundColor: theme.colors.surface1, borderColor: theme.colors.border }]}>
+        {([
+          { key: 'list', label: 'Lista', icon: 'list' },
+          { key: 'map', label: 'Mapa', icon: 'map' },
+        ] as const).map((opt) => {
+          const active = viewMode === opt.key;
+          return (
+            <Pressable
+              key={opt.key}
+              onPress={() => setViewMode(opt.key)}
+              style={[styles.toggleBtn, active && { backgroundColor: theme.colors.primary }]}
+            >
+              <Feather name={opt.icon} size={iconSize.sm} color={active ? onAccentColor : theme.colors.textSecondary} />
+              <Text style={[styles.toggleText, { color: active ? onAccentColor : theme.colors.textSecondary }]}>{opt.label}</Text>
+            </Pressable>
+          );
+        })}
       </View>
 
       {loading ? (
         <View style={styles.center}><ActivityIndicator color={theme.colors.primary} /></View>
       ) : error ? (
-        <View style={styles.center}><Text style={{ color: theme.colors.error ?? '#C62828' }}>{error}</Text></View>
+        <View style={styles.center}><Text style={{ color: severityColors.Alta }}>{error}</Text></View>
+      ) : viewMode === 'map' ? (
+        <View style={styles.mapWrap}>
+          <View style={[styles.mapBox, { borderColor: theme.colors.border }]}>
+            <LeafletMap markers={markers} interactive />
+          </View>
+          {withoutCoords > 0 && (
+            <Text style={[styles.mapNote, { color: theme.colors.textMuted }]}>
+              {withoutCoords} ponto{withoutCoords === 1 ? '' : 's'} sem localização no mapa (veja na Lista).
+            </Text>
+          )}
+        </View>
       ) : (
         <FlatList
           data={points}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => <PointCard point={item} />}
           ItemSeparatorComponent={() => <View style={{ height: spacing.md }} />}
-          contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxxl }}
+          contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxxl * 2 }}
           ListEmptyComponent={
             <View style={styles.center}>
               <Text style={[styles.emptyText, { color: theme.colors.textSecondary }]}>
@@ -195,6 +235,16 @@ export const DropOffScreen: React.FC = () => {
           }
         />
       )}
+
+      {/* FAB: novo ponto de coleta */}
+      <Pressable
+        onPress={() => setModalOpen(true)}
+        accessibilityLabel="Cadastrar novo ponto de coleta"
+        style={({ pressed }) => [styles.fab, { backgroundColor: theme.colors.primary }, pressed && { opacity: 0.85 }]}
+      >
+        <Feather name="plus" size={iconSize.md} color={onAccentColor} />
+        <Text style={styles.fabText}>Novo ponto</Text>
+      </Pressable>
 
       <FormModal visible={modalOpen} onClose={() => setModalOpen(false)} onSubmit={add} />
     </SafeAreaView>
@@ -211,7 +261,28 @@ const styles = StyleSheet.create({
   backBtn: { width: 44, height: 44, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center', borderWidth: 1 },
   title: { fontSize: fontSize.xxl, fontWeight: fontWeight.bold, lineHeight: fontSize.xxl * lineHeight.tight },
   subtitle: { fontSize: fontSize.sm, marginTop: spacing.xxs },
-  fab: { width: 48, height: 48, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center', ...shadows.md },
+  // FAB estendido e centralizado para não se confundir com o "+" (Reportar) da tab bar
+  fab: {
+    position: 'absolute', bottom: spacing.xl, alignSelf: 'center',
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm,
+    height: iconSize.xxl, paddingHorizontal: spacing.xl, borderRadius: radius.pill, ...shadows.md,
+  },
+  fabText: { color: onAccentColor, fontSize: fontSize.md, fontWeight: fontWeight.semibold },
+
+  toggle: {
+    flexDirection: 'row', marginHorizontal: spacing.lg, marginBottom: spacing.sm,
+    padding: spacing.xxs, borderRadius: radius.pill, borderWidth: layout.borderWidth,
+  },
+  toggleBtn: {
+    flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.xs,
+    paddingVertical: spacing.sm, borderRadius: radius.pill,
+  },
+  toggleText: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
+
+  // paddingBottom reserva espaço para o FAB não cobrir o mapa e o aviso
+  mapWrap: { flex: 1, padding: spacing.lg, paddingBottom: iconSize.xxl + spacing.xl * 2, gap: spacing.sm },
+  mapBox: { flex: 1, borderRadius: radius.lg, overflow: 'hidden', borderWidth: layout.borderWidth },
+  mapNote: { fontSize: fontSize.xs, textAlign: 'center' },
 
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing.xxl },
   emptyText: { fontSize: fontSize.md, textAlign: 'center', lineHeight: fontSize.md * lineHeight.normal },

@@ -12,6 +12,7 @@ import { FullMapScreen } from '../screens/FullMapScreen';
 import { ReportDetailScreen } from '../screens/ReportDetailScreen';
 import { useTheme } from '../context/ThemeContext';
 import { DropOffScreen } from '../screens/DropOffScreen';
+import { LevelsScreen } from '../screens/LevelsScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -23,6 +24,7 @@ function HomeStack() {
       <Stack.Screen name="HomeMain" component={HomeScreen} />
       <Stack.Screen name="ReportDetail" component={ReportDetailScreen} />
       <Stack.Screen name="DropOff" component={DropOffScreen} options={{ headerShown: false }}/>
+      <Stack.Screen name="Levels" component={LevelsScreen} />
     </Stack.Navigator>
   );
 }
@@ -53,6 +55,7 @@ function ProfileStack() {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="ProfileMain" component={ProfileScreen} />
       <Stack.Screen name="ReportDetail" component={ReportDetailScreen} />
+      <Stack.Screen name="Levels" component={LevelsScreen} />
     </Stack.Navigator>
   );
 }

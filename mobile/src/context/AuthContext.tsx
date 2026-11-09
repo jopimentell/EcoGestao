@@ -52,16 +52,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     // Ouvir mudanças de autenticação
+    // O callback não pode ser async nem chamar o Supabase diretamente:
+    // isso causa deadlock no lock de sessão do supabase-js.
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
+      (_event, session) => {
         setSession(session);
-        if (session?.user) {
-          const convertedUser = await convertToUser(session.user);
-          setUser(convertedUser);
-        } else {
+        if (!session?.user) {
           setUser(null);
+          setLoading(false);
+          return;
         }
-        setLoading(false);
+        const authUser = session.user;
+        setTimeout(async () => {
+          const convertedUser = await convertToUser(authUser);
+          setUser(convertedUser);
+          setLoading(false);
+        }, 0);
       }
     );
 

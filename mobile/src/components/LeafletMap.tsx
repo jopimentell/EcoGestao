@@ -3,6 +3,7 @@ import { StyleSheet, View, ActivityIndicator } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { useTheme } from '../context/ThemeContext';
 import { theme } from '../theme/tokens';
+import { getTileUrl, MAP_ATTRIBUTION } from '../services/mapTiles';
 
 interface Marker {
   id: string;
@@ -34,9 +35,7 @@ export function LeafletMap({
   const { theme, isDark } = useTheme();
   
   const mapHtml = useMemo(() => {
-    const tileUrl = isDark 
-      ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
-      : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+    const tileUrl = getTileUrl(isDark);
     const bgColor = isDark ? '#333333' : '#f0f0f0';
 
     return `
@@ -111,7 +110,7 @@ export function LeafletMap({
         <script>
           const map = L.map('map', {
             zoomControl: false,
-            attributionControl: false,
+            attributionControl: true,
             dragging: ${interactive},
             touchZoom: ${interactive},
             scrollWheelZoom: ${interactive},
@@ -120,8 +119,10 @@ export function LeafletMap({
           }).setView([${center.lat}, ${center.lng}], ${zoom});
 
           L.tileLayer('${tileUrl}', {
-            maxZoom: 19
+            maxZoom: 19,
+            attribution: '${MAP_ATTRIBUTION}'
           }).addTo(map);
+          map.attributionControl.setPrefix(false);
 
           const markers = ${JSON.stringify(markers)};
           
