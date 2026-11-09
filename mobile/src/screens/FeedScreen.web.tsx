@@ -1,8 +1,9 @@
 // mobile/src/screens/FeedScreen.web.tsx
 // Comunidade Web Desktop: grid de ocorrências + painel lateral com filtros de status e busca.
 import React, { useEffect, useMemo, useState } from 'react';
-import { Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import { Feather } from '@expo/vector-icons';
+import { Image, Pressable, StyleSheet, View } from 'react-native';
+import { Text, TextInput } from '../components/Typography';
+import { Icon, type IconName } from '../components/Icon';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useReports } from '../context/ReportsContext';
@@ -20,9 +21,8 @@ import {
 const { FeedScreen: MobileFeedScreen } = require('./FeedScreen.tsx') as typeof import('./FeedScreen');
 
 type FilterType = 'Todos' | 'Novos' | 'Em análise' | 'Resolvidos';
-type FeatherName = keyof typeof Feather.glyphMap;
 
-const FILTERS: { key: FilterType; status: string | null; icon: FeatherName }[] = [
+const FILTERS: { key: FilterType; status: string | null; icon: IconName }[] = [
   { key: 'Todos',      status: null,         icon: 'layers' },
   { key: 'Novos',      status: 'Novo',       icon: 'inbox' },
   { key: 'Em análise', status: 'Em análise', icon: 'clock' },
@@ -40,8 +40,7 @@ function FeedCard({ item, onVote, onOpen }: { item: FeedItem; onVote: () => void
   const userAvatar = item.userAvatar || 'default';
 
   return (
-    <View style={[styles.card, { backgroundColor: theme.colors.surface1, borderColor: theme.colors.border }]}>
-      <View style={[styles.stripe, { backgroundColor: sevColor }]} />
+    <View style={[styles.card, { backgroundColor: theme.colors.surface1, borderColor: 'transparent' }]}>
 
       <View style={styles.cardHeader}>
         <UserAvatar user={{ name: item.userName || 'Usuário', avatar: userAvatar, isCustomAvatar: userAvatar !== 'default' }} size={iconSize.xl} />
@@ -57,13 +56,13 @@ function FeedCard({ item, onVote, onOpen }: { item: FeedItem; onVote: () => void
           <Image source={{ uri: cover }} style={styles.cover} />
         ) : null}
         <View style={styles.addressRow}>
-          <Feather name="map-pin" size={iconSize.sm} color={theme.colors.primary} />
+          <Icon name="map-pin" size={iconSize.sm} color={theme.colors.primary} />
           <Text style={[styles.street, { color: theme.colors.textPrimary }]} numberOfLines={1}>
             {item.street}{item.neighborhood ? ` · ${item.neighborhood}` : ''}
           </Text>
         </View>
         <Text style={[styles.desc, { color: theme.colors.textSecondary }]} numberOfLines={3}>{item.description}</Text>
-        <DesktopBadge label={`Gravidade ${item.severity}`} color={sevColor} />
+        <DesktopBadge label={item.severity} color={sevColor} />
       </Pressable>
 
       <View style={[styles.actions, { borderTopColor: theme.colors.border }]}>
@@ -75,16 +74,16 @@ function FeedCard({ item, onVote, onOpen }: { item: FeedItem; onVote: () => void
             voted && { backgroundColor: theme.colors.primary + tint.soft },
           ]}
         >
-          <Feather name="chevron-up" size={iconSize.sm} color={voted ? theme.colors.primary : theme.colors.textMuted} />
+          <Icon name="chevron-up" size={iconSize.sm} color={voted ? theme.colors.primary : theme.colors.textMuted} />
           <Text style={[styles.actionText, { color: voted ? theme.colors.primary : theme.colors.textMuted }]}>{item.votes}</Text>
         </Pressable>
         <View style={styles.commentInfo}>
-          <Feather name="message-square" size={iconSize.sm} color={theme.colors.textMuted} />
+          <Icon name="message-square" size={iconSize.sm} color={theme.colors.textMuted} />
           <Text style={[styles.actionText, { color: theme.colors.textMuted }]}>{item.comments || 0}</Text>
         </View>
         <Pressable onPress={onOpen} style={styles.detailsBtn}>
           <Text style={[styles.detailsText, { color: theme.colors.primary }]}>Ver detalhes</Text>
-          <Feather name="arrow-right" size={iconSize.sm} color={theme.colors.primary} />
+          <Icon name="arrow-right" size={iconSize.sm} color={theme.colors.primary} />
         </Pressable>
       </View>
     </View>
@@ -142,7 +141,7 @@ function FeedDesktop() {
                   active && { backgroundColor: theme.colors.primary + tint.soft },
                 ]}
               >
-                <Feather name={f.icon} size={iconSize.sm} color={active ? theme.colors.primary : theme.colors.textSecondary} />
+                <Icon name={f.icon} size={iconSize.sm} color={active ? theme.colors.primary : theme.colors.textSecondary} />
                 <Text style={[styles.filterLabel, { color: active ? theme.colors.primary : theme.colors.textSecondary }]}>{f.key}</Text>
                 <Text style={[styles.filterCount, { color: active ? theme.colors.primary : theme.colors.textMuted }]}>{counts[f.key]}</Text>
               </Pressable>
@@ -162,7 +161,7 @@ function FeedDesktop() {
 
   const main = filtered.length === 0 ? (
     <DesktopCard style={styles.emptyCard}>
-      <Feather name="message-square" size={iconSize.xl} color={theme.colors.textMuted} />
+      <Icon name="message-square" size={iconSize.xl} color={theme.colors.textMuted} />
       <Text style={[styles.emptyTitle, { color: theme.colors.textPrimary }]}>Nenhuma ocorrência encontrada</Text>
       <Text style={[styles.emptySub, { color: theme.colors.textSecondary }]}>
         {query ? 'Tente outro termo de busca.' : 'Ninguém postou nada nesta categoria ainda.'}
@@ -191,7 +190,7 @@ function FeedDesktop() {
         subtitle={`${filtered.length} ocorrência${filtered.length !== 1 ? 's' : ''} · filtro: ${activeFilter.toLowerCase()}`}
         right={(
           <View style={[styles.search, { backgroundColor: theme.colors.surface1, borderColor: theme.colors.border }]}>
-            <Feather name="search" size={iconSize.sm} color={theme.colors.textMuted} />
+            <Icon name="search" size={iconSize.sm} color={theme.colors.textMuted} />
             <TextInput
               value={query}
               onChangeText={setQuery}

@@ -2,18 +2,18 @@
 import React, { useState, useEffect } from 'react';
 import {
   View,
-  Text,
   StyleSheet,
   ScrollView,
   Image,
   TouchableOpacity,
   Alert,
   ActivityIndicator,
-  TextInput,
   FlatList,
 } from 'react-native';
+import { Text, TextInput } from '../components/Typography';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Feather } from '@expo/vector-icons';
+import { Icon } from '../components/Icon';
+import { SeverityChip, StatusChip } from '../components/Chip';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { useAuth } from '../context/AuthContext';
 import { useReports } from '../context/ReportsContext';
@@ -21,6 +21,7 @@ import { useTheme } from '../context/ThemeContext';
 import { supabase } from '../services/supabase';
 import { BeamButton } from '../components/BeamButton';
 import { theme as staticTheme } from '../theme/tokens';
+import { semanticColors, severityColors, statusColors } from '../theme/designSystem';
 
 type RouteParams = {
   reportId: string;
@@ -28,11 +29,11 @@ type RouteParams = {
 
 const getSeverityColor = (severity: string): string => {
   switch (severity) {
-    case 'Baixa': return '#22C55E';
-    case 'Média': return '#F97316';
-    case 'Alta': return '#EF4444';
-    case 'Crítica': return '#A855F7';
-    default: return '#F97316';
+    case 'Baixa': return severityColors.Baixa;
+    case 'Média': return severityColors['Média'];
+    case 'Alta': return severityColors.Alta;
+    case 'Crítica': return severityColors['Crítica'];
+    default: return severityColors['Média'];
   }
 };
 
@@ -219,7 +220,7 @@ export const ReportDetailScreen = () => {
     return (
       <SafeAreaView style={[styles.safe, { backgroundColor: theme.colors.background }]}>
         <View style={styles.centerContainer}>
-          <Feather name="alert-circle" size={48} color={theme.colors.textMuted} />
+          <Icon name="alert-circle" size={48} color={theme.colors.textMuted} />
           <Text style={[styles.notFoundText, { color: theme.colors.textPrimary }]}>Report não encontrado</Text>
           <BeamButton title="Voltar" onPress={() => navigation.goBack()} style={{ marginTop: 20 }} />
         </View>
@@ -234,7 +235,7 @@ export const ReportDetailScreen = () => {
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-            <Feather name="arrow-left" size={24} color={theme.colors.textPrimary} />
+            <Icon name="arrow-left" size={24} color={theme.colors.textPrimary} />
           </TouchableOpacity>
           <Text style={[styles.headerTitle, { color: theme.colors.textPrimary }]}>Detalhes</Text>
           <View style={{ width: 40 }} />
@@ -245,22 +246,13 @@ export const ReportDetailScreen = () => {
           
           {/* Status e Severidade */}
           <View style={styles.statusRow}>
-            <View style={[styles.statusBadge, { 
-              backgroundColor: report.status === 'Resolvido' ? '#22C55E' : 
-                              report.status === 'Em análise' ? '#F97316' : 
-                              report.status === 'Aprovado' ? '#6366F1' : 
-                              '#64748B'
-            }]}>
-              <Text style={styles.statusText}>{report.status}</Text>
-            </View>
-            <View style={[styles.severityBadge, { backgroundColor: report.severityColor + '22', borderColor: report.severityColor + '55' }]}>
-              <Text style={[styles.severityText, { color: report.severityColor }]}>{report.severity}</Text>
-            </View>
+            <StatusChip status={report.status} />
+            <SeverityChip severity={report.severity} />
           </View>
 
           {/* Endereço */}
           <View style={styles.section}>
-            <Feather name="map-pin" size={20} color={theme.colors.primary} />
+            <Icon name="map-pin" size={20} color={theme.colors.primary} />
             <View style={styles.sectionContent}>
               <Text style={[styles.streetText, { color: theme.colors.textPrimary }]}>{report.street}</Text>
               <Text style={[styles.neighborhoodText, { color: theme.colors.textSecondary }]}>{report.neighborhood}</Text>
@@ -269,22 +261,22 @@ export const ReportDetailScreen = () => {
 
           {/* Descrição */}
           <View style={styles.section}>
-            <Feather name="file-text" size={20} color={theme.colors.primary} />
+            <Icon name="file-text" size={20} color={theme.colors.primary} />
             <Text style={[styles.descriptionText, { color: theme.colors.textPrimary }]}>{report.description}</Text>
           </View>
 
           {/* Informações adicionais */}
-          <View style={styles.infoRow}>
+          <View style={[styles.infoRow, { borderTopColor: theme.colors.border }]}>
             <View style={styles.infoItem}>
-              <Feather name="user" size={16} color={theme.colors.textMuted} />
+              <Icon name="user" size={16} color={theme.colors.textMuted} />
               <Text style={[styles.infoText, { color: theme.colors.textSecondary }]}>{report.userName || 'Anônimo'}</Text>
             </View>
             <TouchableOpacity style={styles.infoItem} onPress={handleVote}>
-              <Feather name="thumbs-up" size={16} color={hasVoted ? theme.colors.primary : theme.colors.textMuted} />
+              <Icon name="thumbs-up" size={16} color={hasVoted ? theme.colors.primary : theme.colors.textMuted} />
               <Text style={[styles.infoText, { color: hasVoted ? theme.colors.primary : theme.colors.textSecondary }]}>{report.votes || 0} votos</Text>
             </TouchableOpacity>
             <View style={styles.infoItem}>
-              <Feather name="calendar" size={16} color={theme.colors.textMuted} />
+              <Icon name="calendar" size={16} color={theme.colors.textMuted} />
               <Text style={[styles.infoText, { color: theme.colors.textSecondary }]}>
                 {new Date(report.createdAt).toLocaleDateString('pt-BR')}
               </Text>
@@ -316,7 +308,7 @@ export const ReportDetailScreen = () => {
                 onPress={() => handleUpdateStatus('Aprovado')}
                 disabled={updating}
               >
-                <Feather name="check" size={16} color="#FFF" />
+                <Icon name="check" size={16} color="#FFF" />
                 <Text style={styles.adminButtonText}>Aprovar</Text>
               </TouchableOpacity>
               
@@ -325,7 +317,7 @@ export const ReportDetailScreen = () => {
                 onPress={() => handleUpdateStatus('Rejeitado')}
                 disabled={updating}
               >
-                <Feather name="x" size={16} color="#FFF" />
+                <Icon name="x" size={16} color="#FFF" />
                 <Text style={styles.adminButtonText}>Rejeitar</Text>
               </TouchableOpacity>
               
@@ -334,7 +326,7 @@ export const ReportDetailScreen = () => {
                 onPress={() => handleUpdateStatus('Resolvido')}
                 disabled={updating}
               >
-                <Feather name="check-circle" size={16} color="#FFF" />
+                <Icon name="check-circle" size={16} color="#FFF" />
                 <Text style={styles.adminButtonText}>Resolver</Text>
               </TouchableOpacity>
             </View>
@@ -352,7 +344,7 @@ export const ReportDetailScreen = () => {
               onPress={handleDelete}
               disabled={updating}
             >
-              <Feather name="trash-2" size={18} color="#FFF" />
+              <Icon name="trash-2" size={18} color="#FFF" />
               <Text style={styles.deleteButtonText}>Deletar {isOwner ? 'meu report' : 'report'}</Text>
             </TouchableOpacity>
             
@@ -419,7 +411,7 @@ export const ReportDetailScreen = () => {
               {submittingComment ? (
                 <ActivityIndicator size="small" color="#FFF" />
               ) : (
-                <Feather name="send" size={18} color="#FFF" />
+                <Icon name="send" size={18} color="#FFF" />
               )}
             </TouchableOpacity>
           </View>
@@ -469,14 +461,14 @@ const styles = StyleSheet.create({
   adminButtons: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   adminButton: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 16, paddingVertical: 10, borderRadius: 8, flex: 1, minWidth: '45%', justifyContent: 'center' },
   adminButtonText: { color: '#FFF', fontSize: 12, fontFamily: staticTheme.typography.fontFamily.medium },
-  approveButton: { backgroundColor: '#22C55E' },
-  rejectButton: { backgroundColor: '#EF4444' },
-  resolveButton: { backgroundColor: '#6366F1' },
+  approveButton: { backgroundColor: semanticColors.success },
+  rejectButton: { backgroundColor: semanticColors.danger },
+  resolveButton: { backgroundColor: semanticColors.info },
   
   // User actions
   actionContainer: { marginTop: staticTheme.spacing.lg, padding: staticTheme.spacing.lg, borderRadius: staticTheme.radii.xl, borderWidth: 1 },
   actionTitle: { fontSize: 14, fontFamily: staticTheme.typography.fontFamily.semiBold, marginBottom: 12 },
-  deleteButton: { backgroundColor: '#DC2626' },
+  deleteButton: { backgroundColor: semanticColors.danger },
   deleteButtonFull: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, padding: 12, borderRadius: 8 },
   deleteButtonText: { color: '#FFF', fontSize: 14, fontFamily: staticTheme.typography.fontFamily.medium },
   noteText: { fontSize: 11, fontFamily: staticTheme.typography.fontFamily.regular, marginTop: 12, textAlign: 'center' },

@@ -1,9 +1,10 @@
 // mobile/src/screens/DropOffDetailScreen.tsx
 // Detalhe de um ponto de coleta ("Onde descartar"). Usado no app e na web (conteúdo centralizado no desktop).
 import React from 'react';
-import { Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Linking, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Text } from '../components/Typography';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Feather } from '@expo/vector-icons';
+import { Icon } from '../components/Icon';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useDropOff } from '../context/DropOffContext';
 import { useTheme } from '../context/ThemeContext';
@@ -38,7 +39,7 @@ export const DropOffDetailScreen: React.FC = () => {
       accessibilityLabel="Voltar"
       style={[styles.backBtn, { backgroundColor: theme.colors.surface1, borderColor: theme.colors.border }]}
     >
-      <Feather name="arrow-left" size={iconSize.sm} color={theme.colors.textPrimary} />
+      <Icon name="arrow-left" size={iconSize.sm} color={theme.colors.textPrimary} />
     </Pressable>
   );
 
@@ -47,7 +48,7 @@ export const DropOffDetailScreen: React.FC = () => {
       <SafeAreaView style={[styles.safe, { backgroundColor: theme.colors.background }]} edges={['top']}>
         <View style={styles.headerRow}>{backButton}</View>
         <View style={styles.center}>
-          <Feather name="map-pin" size={iconSize.xl} color={theme.colors.textMuted} />
+          <Icon name="map-pin" size={iconSize.xl} color={theme.colors.textMuted} />
           <Text style={[styles.emptyText, { color: theme.colors.textSecondary }]}>
             {loading ? 'Carregando ponto de coleta...' : 'Ponto de coleta não encontrado.'}
           </Text>
@@ -88,7 +89,7 @@ export const DropOffDetailScreen: React.FC = () => {
             </View>
           ) : (
             <View style={[styles.noMap, { backgroundColor: theme.colors.surface1, borderColor: theme.colors.border }]}>
-              <Feather name="map" size={iconSize.md} color={theme.colors.textMuted} />
+              <Icon name="map" size={iconSize.md} color={theme.colors.textMuted} />
               <Text style={[styles.noMapText, { color: theme.colors.textMuted }]}>
                 Este ponto ainda não tem localização no mapa.
               </Text>
@@ -99,7 +100,7 @@ export const DropOffDetailScreen: React.FC = () => {
           <View style={[styles.card, { backgroundColor: theme.colors.surface1, borderColor: theme.colors.border }, shadows.sm]}>
             <View style={styles.titleRow}>
               <View style={[styles.pinIcon, { backgroundColor: theme.colors.primary + tint.subtle }]}>
-                <Feather name="map-pin" size={iconSize.md} color={theme.colors.primary} />
+                <Icon name="map-pin" size={iconSize.md} color={theme.colors.primary} />
               </View>
               <View style={styles.titleText}>
                 <Text style={[styles.title, { color: theme.colors.textPrimary }]}>{point.name}</Text>
@@ -111,7 +112,7 @@ export const DropOffDetailScreen: React.FC = () => {
               onPress={openDirections}
               style={({ pressed }) => [styles.primaryBtn, { backgroundColor: theme.colors.primary }, pressed && styles.pressed]}
             >
-              <Feather name="navigation" size={iconSize.sm} color={onAccentColor} />
+              <Icon name="navigation" size={iconSize.sm} color={onAccentColor} />
               <Text style={styles.primaryText}>Como chegar</Text>
             </Pressable>
           </View>
@@ -126,7 +127,7 @@ export const DropOffDetailScreen: React.FC = () => {
                     key={mat}
                     style={[styles.chip, { backgroundColor: theme.colors.primary + tint.soft, borderColor: theme.colors.primary + tint.strong }]}
                   >
-                    <Feather name="check" size={fontSize.sm}color={theme.colors.primary} />
+                    <Icon name="check" size={fontSize.sm}color={theme.colors.primary} />
                     <Text style={[styles.chipText, { color: theme.colors.primary }]}>{mat}</Text>
                   </View>
                 ))}

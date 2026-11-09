@@ -1,10 +1,8 @@
 import React, { useRef, useEffect, useState } from 'react';
 import {
   View,
-  Text,
   StyleSheet,
   ScrollView,
-  TextInput,
   Pressable,
   Animated,
   Easing,
@@ -13,11 +11,13 @@ import {
   Modal,
   ActivityIndicator,
 } from 'react-native';
+import { Text, TextInput } from '../components/Typography';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Feather } from '@expo/vector-icons';
+import { Icon } from '../components/Icon';
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
 import { theme as staticTheme } from '../theme/tokens';
+import { semanticColors, severityColors } from '../theme/designSystem';
 import { BeamButton } from '../components/BeamButton';
 import { useAuth } from '../context/AuthContext';
 import { useReports } from '../context/ReportsContext';
@@ -29,10 +29,10 @@ import { useTheme } from '../context/ThemeContext';
 type Severity = 'Baixa' | 'Média' | 'Alta' | 'Crítica';
 
 const SEVERITIES: { label: Severity; color: string; icon: string }[] = [
-  { label: 'Baixa',   color: '#22C55E', icon: 'circle' },
-  { label: 'Média',   color: '#F97316', icon: 'circle' },
-  { label: 'Alta',    color: '#EF4444', icon: 'circle' },
-  { label: 'Crítica', color: '#A855F7', icon: 'alert-triangle' },
+  { label: 'Baixa',   color: severityColors.Baixa, icon: 'circle' },
+  { label: 'Média',   color: severityColors['Média'], icon: 'circle' },
+  { label: 'Alta',    color: severityColors.Alta, icon: 'circle' },
+  { label: 'Crítica', color: severityColors['Crítica'], icon: 'alert-triangle' },
 ];
 
 // ── Step indicator ────────────────────────────────────────────────────────────
@@ -45,7 +45,7 @@ function StepDot({ active, done, n, theme }: { active: boolean; done: boolean; n
       done && { borderColor: theme.colors.primary, backgroundColor: theme.colors.primary }
     ]}>
       {done
-        ? <Feather name="check" size={14} color="#FFF" />
+        ? <Icon name="check" size={14} color="#FFF" />
         : <Text style={[styles.stepDotText, { color: active ? theme.colors.primary : theme.colors.textPrimary }]}>{n}</Text>
       }
     </View>
@@ -109,7 +109,7 @@ function PhotoModal({ visible, onClose, onTakePhoto, theme }: { visible: boolean
           <View style={styles.modalActions}>
             <Pressable style={[styles.modalActionBtn, { backgroundColor: theme.colors.surface2, borderColor: theme.colors.border }]} onPress={onTakePhoto}>
               <View style={[styles.modalActionIconBox, { backgroundColor: theme.colors.primary + '22' }]}>
-                <Feather name="camera" size={24} color={theme.colors.primary} />
+                <Icon name="camera" size={24} color={theme.colors.primary} />
               </View>
               <View>
                 <Text style={[styles.modalActionLabel, { color: theme.colors.textPrimary }]}>Tirar Foto</Text>
@@ -142,7 +142,7 @@ function SuccessScreen({ onReset, theme }: { onReset: () => void; theme: any }) 
   return (
     <Animated.View style={[styles.successContainer, { backgroundColor: theme.colors.background, opacity, transform: [{ scale }] }]}>
       <View style={[styles.successIcon, { backgroundColor: theme.colors.primary + '22', borderColor: theme.colors.primary + '55' }]}>
-        <Feather name="map-pin" size={40} color={theme.colors.primary} />
+        <Icon name="map-pin" size={40} color={theme.colors.primary} />
       </View>
       <Text style={[styles.successTitle, { color: theme.colors.textPrimary }]}>Reporte enviado!</Text>
       <Text style={[styles.successSub, { color: theme.colors.textSecondary }]}>
@@ -287,7 +287,7 @@ export const ReportScreen = () => {
           {step === 0 && (
             <View style={[styles.card, { backgroundColor: theme.colors.surface1, borderColor: theme.colors.border }]}>
               <View style={styles.cardTitleRow}>
-                <Feather name="map-pin" size={18} color={theme.colors.primary} />
+                <Icon name="map-pin" size={18} color={theme.colors.primary} />
                 <Text style={[styles.cardTitle, { color: theme.colors.textPrimary, marginLeft: 8 }]}>Onde é o Denúncia?</Text>
               </View>
               
@@ -299,7 +299,7 @@ export const ReportScreen = () => {
                   onLocationSelect={(lat, lng) => setLocation({ lat, lng })}
                 />
                 <Pressable style={[styles.gpsBtn, { backgroundColor: theme.colors.primary }]} onPress={getMyLocation} disabled={loadingLoc}>
-                  {loadingLoc ? <ActivityIndicator size="small" color="#FFF" /> : <Feather name="target" size={20} color="#FFF" />}
+                  {loadingLoc ? <ActivityIndicator size="small" color="#FFF" /> : <Icon name="target" size={20} color="#FFF" />}
                 </Pressable>
               </View>
 
@@ -313,14 +313,14 @@ export const ReportScreen = () => {
           {step === 1 && (
             <View style={[styles.card, { backgroundColor: theme.colors.surface1, borderColor: theme.colors.border }]}>
               <View style={styles.cardTitleRow}>
-                <Feather name="search" size={18} color={theme.colors.primary} />
+                <Icon name="search" size={18} color={theme.colors.primary} />
                 <Text style={[styles.cardTitle, { color: theme.colors.textPrimary, marginLeft: 8 }]}>Detalhe o problema</Text>
               </View>
               <Text style={[styles.inputLabel, { color: theme.colors.textSecondary }]}>Gravidade</Text>
               <View style={styles.severityGrid}>
                 {SEVERITIES.map((s) => (
                   <Pressable key={s.label} onPress={() => setSeverity(s.label)} style={[styles.severityOption, { borderColor: severity === s.label ? s.color : theme.colors.border }, severity === s.label && { backgroundColor: s.color + '18' }]}>
-                    <Feather name={s.icon as any} size={18} color={severity === s.label ? s.color : theme.colors.textMuted} />
+                    <Icon name={s.icon as any} size={18} color={severity === s.label ? s.color : theme.colors.textMuted} />
                     <Text style={[styles.severityOptionText, { color: theme.colors.textSecondary }, severity === s.label && { color: s.color }]}>{s.label}</Text>
                   </Pressable>
                 ))}
@@ -332,13 +332,13 @@ export const ReportScreen = () => {
                   <View key={i} style={styles.photoPreviewWrapper}>
                     <Image source={{ uri }} style={styles.photoPreview} />
                     <Pressable style={[styles.photoRemove, { borderColor: theme.colors.surface1 }]} onPress={() => setImages(images.filter((_, idx) => idx !== i))}>
-                      <Feather name="x" size={12} color="#FFF" />
+                      <Icon name="x" size={12} color="#FFF" />
                     </Pressable>
                   </View>
                 ))}
                 {images.length < 3 && (
                   <Pressable style={[styles.photoSlot, { backgroundColor: theme.colors.surface2, borderColor: theme.colors.border }]} onPress={() => setModalVisible(true)}>
-                    <Feather name="plus" size={24} color={theme.colors.textMuted} />
+                    <Icon name="plus" size={24} color={theme.colors.textMuted} />
                   </Pressable>
                 )}
               </View>
@@ -401,12 +401,12 @@ const styles = StyleSheet.create({
   photoRow:  { flexDirection: 'row', gap: staticTheme.spacing.sm, flexWrap: 'wrap' },
   photoPreviewWrapper: { position: 'relative' },
   photoPreview: { width: 80, height: 80, borderRadius: staticTheme.radii.md },
-  photoRemove: { position: 'absolute', top: -5, right: -5, width: 20, height: 20, borderRadius: 10, backgroundColor: '#EF4444', justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: staticTheme.colors.surface1 },
+  photoRemove: { position: 'absolute', top: -5, right: -5, width: 20, height: 20, borderRadius: 10, backgroundColor: semanticColors.danger, justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: staticTheme.colors.surface1 },
   photoSlot: { width: 80, height: 80, borderRadius: staticTheme.radii.md, borderWidth: 1.5, borderColor: staticTheme.colors.border, borderStyle: 'dashed', justifyContent: 'center', alignItems: 'center', backgroundColor: staticTheme.colors.surface2 },
   ctaBtn: { marginTop: staticTheme.spacing.sm },
   btnRow: { flexDirection: 'row', gap: staticTheme.spacing.sm, marginTop: staticTheme.spacing.sm },
   successContainer: { flex: 1, backgroundColor: staticTheme.colors.background, justifyContent: 'center', alignItems: 'center', padding: staticTheme.spacing.xl },
-  successIcon: { width: 96, height: 96, borderRadius: 48, backgroundColor: 'rgba(249,115,22,0.12)', borderWidth: 1.5, borderColor: 'rgba(249,115,22,0.35)', justifyContent: 'center', alignItems: 'center', marginBottom: staticTheme.spacing.lg },
+  successIcon: { width: 96, height: 96, borderRadius: 48, backgroundColor: 'rgba(69,156,106,0.12)', borderWidth: 1.5, borderColor: 'rgba(69,156,106,0.35)', justifyContent: 'center', alignItems: 'center', marginBottom: staticTheme.spacing.lg },
   successTitle:{ fontSize: 26, color: staticTheme.colors.textPrimary, fontFamily: staticTheme.typography.fontFamily.semiBold, marginBottom: staticTheme.spacing.md },
   successSub:  { fontSize: 14, color: staticTheme.colors.textSecondary, fontFamily: staticTheme.typography.fontFamily.regular, textAlign: 'center', lineHeight: 22 },
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'flex-end' },
@@ -417,7 +417,7 @@ const styles = StyleSheet.create({
   modalSub: { fontSize: 13, color: staticTheme.colors.textSecondary, fontFamily: staticTheme.typography.fontFamily.regular, marginTop: 4 },
   modalActions: { gap: staticTheme.spacing.md, marginBottom: staticTheme.spacing.xl },
   modalActionBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: staticTheme.colors.surface2, padding: staticTheme.spacing.md, borderRadius: staticTheme.radii.xl, borderWidth: 1, borderColor: staticTheme.colors.border, gap: staticTheme.spacing.md },
-  modalActionIconBox: { width: 48, height: 48, borderRadius: 24, backgroundColor: 'rgba(249,115,22,0.1)', justifyContent: 'center', alignItems: 'center' },
+  modalActionIconBox: { width: 48, height: 48, borderRadius: 24, backgroundColor: 'rgba(69,156,106,0.1)', justifyContent: 'center', alignItems: 'center' },
   modalActionLabel: { fontSize: 15, color: staticTheme.colors.textPrimary, fontFamily: staticTheme.typography.fontFamily.semiBold },
   modalActionDesc: { fontSize: 12, color: staticTheme.colors.textMuted, fontFamily: staticTheme.typography.fontFamily.regular, marginTop: 2 },
   modalCancel: { alignItems: 'center', padding: staticTheme.spacing.md },

@@ -1,8 +1,10 @@
 // mobile/src/screens/DropOffScreen.web.tsx
 // "Onde descartar" Web Desktop: filtro por material à esquerda, grid de pontos de coleta e cadastro em diálogo centralizado.
 import React, { useMemo, useState } from 'react';
-import { ActivityIndicator, Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import { Feather } from '@expo/vector-icons';
+import { ActivityIndicator, Modal, Pressable, StyleSheet, View } from 'react-native';
+import { Text, TextInput } from '../components/Typography';
+import { Icon } from '../components/Icon';
+import { MaterialChip } from '../components/Chip';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useDropOff } from '../context/DropOffContext';
@@ -39,7 +41,7 @@ function PointCard({ point, highlight, onPress }: { point: DropOffPoint; highlig
     >
       <View style={styles.cardHeader}>
         <View style={[styles.pinIcon, { backgroundColor: theme.colors.primary + tint.subtle }]}>
-          <Feather name="map-pin" size={iconSize.md} color={theme.colors.primary} />
+          <Icon name="map-pin" size={iconSize.md} color={theme.colors.primary} />
         </View>
         <View style={styles.cardHeaderText}>
           <Text style={[styles.cardTitle, { color: theme.colors.textPrimary }]} numberOfLines={2}>{point.name}</Text>
@@ -51,14 +53,11 @@ function PointCard({ point, highlight, onPress }: { point: DropOffPoint; highlig
           {point.accepted_materials.map((mat) => {
             const active = mat === highlight;
             return (
-              <View
+              <MaterialChip
                 key={mat}
-                style={[styles.chip, active
-                  ? { backgroundColor: theme.colors.primary + tint.soft, borderColor: theme.colors.primary }
-                  : { backgroundColor: theme.colors.surface2, borderColor: theme.colors.border }]}
-              >
-                <Text style={[styles.chipText, { color: active ? theme.colors.primary : theme.colors.textSecondary }]}>{mat}</Text>
-              </View>
+                material={mat}
+                style={active ? { borderWidth: 1.5, borderColor: theme.colors.primary } : undefined}
+              />
             );
           })}
         </View>
@@ -111,7 +110,7 @@ function FormDialog({ visible, onClose, onSubmit }: {
           <View style={styles.dialogHeader}>
             <Text style={[styles.dialogTitle, { color: theme.colors.textPrimary }]}>Novo ponto de coleta</Text>
             <Pressable onPress={close} accessibilityLabel="Fechar" style={styles.closeBtn}>
-              <Feather name="x" size={iconSize.md} color={theme.colors.textMuted} />
+              <Icon name="x" size={iconSize.md} color={theme.colors.textMuted} />
             </Pressable>
           </View>
 
@@ -163,7 +162,7 @@ function FormDialog({ visible, onClose, onSubmit }: {
 
           {!!error && (
             <View style={[styles.errorBox, { backgroundColor: severityColors.Alta + tint.subtle, borderColor: severityColors.Alta + tint.strong }]}>
-              <Feather name="alert-circle" size={iconSize.sm} color={severityColors.Alta} />
+              <Icon name="alert-circle" size={iconSize.sm} color={severityColors.Alta} />
               <Text style={[styles.errorText, { color: severityColors.Alta }]}>{error}</Text>
             </View>
           )}
@@ -245,7 +244,7 @@ function DropOffDesktop() {
   } else if (filtered.length === 0) {
     main = (
       <DesktopCard style={styles.emptyCard}>
-        <Feather name="trash-2" size={iconSize.xl} color={theme.colors.textMuted} />
+        <Icon name="trash-2" size={iconSize.xl} color={theme.colors.textMuted} />
         <Text style={[styles.emptyText, { color: theme.colors.textSecondary }]}>
           {points.length === 0
             ? 'Nenhum ponto cadastrado ainda. Seja o primeiro a contribuir!'
@@ -295,7 +294,7 @@ function DropOffDesktop() {
         <DesktopPageHeader
           left={navigation.canGoBack() ? (
             <Pressable onPress={() => navigation.goBack()} accessibilityLabel="Voltar" style={[styles.backBtn, { backgroundColor: theme.colors.surface1, borderColor: theme.colors.border }]}>
-              <Feather name="arrow-left" size={iconSize.sm} color={theme.colors.textPrimary} />
+              <Icon name="arrow-left" size={iconSize.sm} color={theme.colors.textPrimary} />
             </Pressable>
           ) : undefined}
           title="Onde descartar"
@@ -318,14 +317,14 @@ function DropOffDesktop() {
                         active && { backgroundColor: theme.colors.primary },
                       ]}
                     >
-                      <Feather name={opt.icon} size={iconSize.sm} color={active ? onAccentColor : theme.colors.textSecondary} />
+                      <Icon name={opt.icon} size={iconSize.sm} color={active ? onAccentColor : theme.colors.textSecondary} />
                       <Text style={[styles.toggleText, { color: active ? onAccentColor : theme.colors.textSecondary }]}>{opt.label}</Text>
                     </Pressable>
                   );
                 })}
               </View>
               <View style={[styles.search, { backgroundColor: theme.colors.surface1, borderColor: theme.colors.border }]}>
-                <Feather name="search" size={iconSize.sm} color={theme.colors.textMuted} />
+                <Icon name="search" size={iconSize.sm} color={theme.colors.textMuted} />
                 <TextInput
                   value={query}
                   onChangeText={setQuery}
@@ -338,7 +337,7 @@ function DropOffDesktop() {
                 onPress={() => setModalOpen(true)}
                 style={({ hovered }: WebPressableState) => [styles.primaryBtn, { backgroundColor: theme.colors.primary }, hovered && styles.hovered]}
               >
-                <Feather name="plus" size={iconSize.sm} color={onAccentColor} />
+                <Icon name="plus" size={iconSize.sm} color={onAccentColor} />
                 <Text style={styles.primaryText}>Novo ponto</Text>
               </Pressable>
             </View>

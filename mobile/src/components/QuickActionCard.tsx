@@ -1,14 +1,15 @@
 // mobile/src/components/QuickActionCard.tsx
 import React from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { Feather } from '@expo/vector-icons';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { Text } from './Typography';
+import { Icon, type IconName } from './Icon';
 import { useTheme } from '../context/ThemeContext';
 import {
   fontSize, fontWeight, iconSize, lineHeight, radius, shadows, spacing,
 } from '../theme/designSystem';
 
 interface Props {
-  icon: keyof typeof Feather.glyphMap;
+  icon: IconName;
   title: string;
   description: string;
   accentColor: string;
@@ -29,7 +30,7 @@ export const QuickActionCard: React.FC<Props> = ({ icon, title, description, acc
       ]}
     >
       <View style={[styles.iconBubble, { backgroundColor: accentColor + '18' }]}>
-        <Feather name={icon} size={iconSize.lg} color={accentColor} />
+        <Icon name={icon} size={iconSize.lg} color={accentColor} />
       </View>
       <Text style={[styles.title, { color: theme.colors.textPrimary }]} numberOfLines={2}>
         {title}

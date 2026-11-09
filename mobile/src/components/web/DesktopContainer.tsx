@@ -2,14 +2,20 @@
 // Estrutura compartilhada das telas Web Desktop (.web.tsx).
 import React from 'react';
 import {
-  ScrollView, StyleSheet, Text, View, useWindowDimensions,
-  type StyleProp, type ViewStyle,
+  ScrollView,
+  StyleSheet,
+  View,
+  useWindowDimensions,
+  type StyleProp,
+  type ViewStyle,
 } from 'react-native';
+import { Text } from '../Typography';
+import { Chip, SeverityChip, StatusChip } from '../Chip';
 import { useTheme } from '../../context/ThemeContext';
 import type { Theme } from '../../theme/tokens';
 import {
-  fontSize, fontWeight, layout, lineHeight, onAccentColor, radius, severityColors, spacing, tint,
-  type Severity,
+  fontSize, fontWeight, layout, lineHeight, radius, severityColors, severityTones, spacing, statusColors,
+  statusTones, type Severity,
 } from '../../theme/designSystem';
 
 /** Estado do Pressable no react-native-web (inclui hover do mouse). */
@@ -41,16 +47,8 @@ export function responsiveScreen<P extends object>(
 export const getSeverityColor = (severity: string): string =>
   severityColors[severity as Severity] ?? severityColors['Média'];
 
-export const getStatusColor = (status: string, theme: Theme): string => {
-  switch (status) {
-    case 'Resolvido':  return severityColors.Baixa;
-    case 'Aprovado':
-    case 'Publicado':  return theme.colors.indigo;
-    case 'Em análise': return severityColors['Média'];
-    case 'Rejeitado':  return severityColors.Alta;
-    default:           return theme.colors.textMuted;
-  }
-};
+export const getStatusColor = (status: string, theme: Theme): string =>
+  statusColors[status] ?? theme.colors.textMuted;
 
 /* ---------- Container ---------- */
 interface DesktopContainerProps {
@@ -183,16 +181,13 @@ export const DesktopCard: React.FC<DesktopCardProps> = ({ children, title, right
 };
 
 /* ---------- Badge ---------- */
-export const DesktopBadge: React.FC<{ label: string; color: string; solid?: boolean }> = ({ label, color, solid = false }) => (
-  <View style={[
-    styles.badge,
-    solid
-      ? { backgroundColor: color, borderColor: color }
-      : { backgroundColor: color + tint.soft, borderColor: color + tint.strong },
-  ]}>
-    <Text style={[styles.badgeText, { color: solid ? onAccentColor : color }]}>{label}</Text>
-  </View>
-);
+// Etiqueta pastel: status e severidade conhecidos ganham tom e ícone próprios (Chip.tsx).
+// `color` e `solid` ficam por compatibilidade com as telas que já usam o componente.
+export const DesktopBadge: React.FC<{ label: string; color?: string; solid?: boolean }> = ({ label }) => {
+  if (label in statusTones) return <StatusChip status={label} />;
+  if (label in severityTones) return <SeverityChip severity={label} />;
+  return <Chip label={label} />;
+};
 
 const styles = StyleSheet.create({
   root: { flex: 1 },
@@ -212,13 +207,7 @@ const styles = StyleSheet.create({
   grid: { flexDirection: 'row', flexWrap: 'wrap' },
   gridFallback: { width: '100%' },
 
-  card: { borderRadius: radius.lg, borderWidth: layout.borderWidth, padding: spacing.xl, gap: spacing.lg },
+  card: { borderRadius: radius.lg, padding: spacing.xl, gap: spacing.lg },
   cardHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.md },
-  cardTitle: { fontSize: fontSize.md, fontWeight: fontWeight.semibold },
-
-  badge: {
-    alignSelf: 'flex-start', paddingHorizontal: spacing.sm, paddingVertical: spacing.xxs,
-    borderRadius: radius.pill, borderWidth: layout.borderWidth,
-  },
-  badgeText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold },
+  cardTitle: { fontSize: fontSize.md, fontWeight: fontWeight.bold },
 });

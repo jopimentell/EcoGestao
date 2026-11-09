@@ -1,9 +1,10 @@
 // mobile/src/screens/LevelsScreen.tsx
 // Jornada de níveis (gamificação): timeline vertical com nível atual, conquistados e bloqueados.
 import React, { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Text } from '../components/Typography';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Feather } from '@expo/vector-icons';
+import { Icon, type IconName } from '../components/Icon';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
@@ -15,7 +16,6 @@ import {
   severityColors, shadows, spacing, tint,
 } from '../theme/designSystem';
 
-type FeatherName = keyof typeof Feather.glyphMap;
 export type LevelState = 'done' | 'current' | 'locked';
 
 /* ---------- Dados (compartilhado com a versão .web.tsx) ---------- */
@@ -82,14 +82,14 @@ export function useLevelStateVisual() {
     const state = getLevelState(level);
     const visual = getLevelVisual(level.level);
     if (state === 'done') {
-      return { state, icon: 'check' as FeatherName, color: severityColors.Baixa, label: 'Conquistado' };
+      return { state, icon: 'check' as IconName, color: severityColors.Baixa, label: 'Conquistado' };
     }
     if (state === 'current') {
-      return { state, icon: visual.icon as FeatherName, color: theme.colors.primary, label: 'Nível atual' };
+      return { state, icon: visual.icon as IconName, color: theme.colors.primary, label: 'Nível atual' };
     }
     return {
       state,
-      icon: 'lock' as FeatherName,
+      icon: 'lock' as IconName,
       color: theme.colors.textMuted,
       label: `Faltam ${level.reports_needed} reporte${level.reports_needed === 1 ? '' : 's'}`,
     };
@@ -113,7 +113,7 @@ export const LevelsScreen = () => {
             onPress={() => navigation.goBack()}
             style={[styles.backBtn, { backgroundColor: theme.colors.surface1, borderColor: theme.colors.border }]}
           >
-            <Feather name="arrow-left" size={iconSize.sm} color={theme.colors.textPrimary} />
+            <Icon name="arrow-left" size={iconSize.sm} color={theme.colors.textPrimary} />
           </Pressable>
         )}
         <View style={styles.headerText}>
@@ -128,7 +128,7 @@ export const LevelsScreen = () => {
         <View style={styles.center}><ActivityIndicator color={theme.colors.primary} /></View>
       ) : error ? (
         <View style={styles.center}>
-          <Feather name="alert-circle" size={iconSize.xl} color={theme.colors.textMuted} />
+          <Icon name="alert-circle" size={iconSize.xl} color={theme.colors.textMuted} />
           <Text style={[styles.errorText, { color: theme.colors.textSecondary }]}>{error}</Text>
           <Pressable onPress={reload} style={[styles.retryBtn, { backgroundColor: theme.colors.primary }]}>
             <Text style={styles.retryText}>Tentar novamente</Text>
@@ -166,7 +166,7 @@ export const LevelsScreen = () => {
                         : { backgroundColor: v.color, borderColor: v.color },
                       current && styles.nodeCurrent,
                     ]}>
-                      <Feather name={v.icon} size={iconSize.sm} color={v.state === 'locked' ? theme.colors.textMuted : onAccentColor} />
+                      <Icon name={v.icon} size={iconSize.sm} color={v.state === 'locked' ? theme.colors.textMuted : onAccentColor} />
                     </View>
                     {!isLast && (
                       <View style={[
@@ -199,7 +199,7 @@ export const LevelsScreen = () => {
           {/* Ranking top 10 */}
           <View style={[styles.summary, { backgroundColor: theme.colors.surface1, borderColor: theme.colors.border }]}>
             <View style={styles.rankingHeader}>
-              <Feather name="award" size={iconSize.sm} color={theme.colors.primary} />
+              <Icon name="award" size={iconSize.sm} color={theme.colors.primary} />
               <Text style={[styles.rankingTitle, { color: theme.colors.textPrimary }]}>Top 10 colaboradores</Text>
             </View>
             <Text style={[styles.summaryFoot, { color: theme.colors.textSecondary }]}>

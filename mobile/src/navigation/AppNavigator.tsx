@@ -3,7 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { View, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Feather } from '@expo/vector-icons';
+import { Icon } from '../components/Icon';
 import { HomeScreen } from '../screens/HomeScreen';
 import { ReportScreen } from '../screens/ReportScreen';
 import { FeedScreen } from '../screens/FeedScreen';
@@ -77,14 +77,14 @@ function TabIcon({ name, focused, theme }: { name: string; focused: boolean; the
   if (isReport) {
     return (
       <View style={[styles.reportFab, { backgroundColor: theme.colors.primary, shadowColor: theme.colors.primary }]}>
-        <Feather name="plus" size={26} color="#FFF" />
+        <Icon name="plus" size={26} color="#FFF" />
       </View>
     );
   }
 
   return (
     <View style={styles.iconWrapper}>
-      <Feather 
+      <Icon 
         name={iconName} 
         size={20} 
         color={focused ? theme.colors.primary : theme.colors.textMuted} 
@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
   },
   tabLabel: {
     fontSize: 10,
-    fontFamily: 'Inter-Medium',
+    fontFamily: 'Nunito-Medium',
     marginTop: 0,
   },
   iconWrapper: {

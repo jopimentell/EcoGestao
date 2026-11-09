@@ -1,9 +1,21 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
-import { View, Text, StyleSheet, ScrollView, Animated as RNAnimated, Easing as RNEasing,
-  Dimensions, Image, TouchableOpacity, Pressable, Modal, TextInput, ActivityIndicator } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  Animated as RNAnimated,
+  Easing as RNEasing,
+  Dimensions,
+  Image,
+  TouchableOpacity,
+  Pressable,
+  Modal,
+  ActivityIndicator,
+} from 'react-native';
+import { Text, TextInput } from '../components/Typography';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Feather } from '@expo/vector-icons';
+import { Icon } from '../components/Icon';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useAuth } from '../context/AuthContext';
@@ -20,9 +32,10 @@ import { supabase } from '../services/supabase';
 import type { LevelProgress } from '../types';
 import { darkTheme, lightTheme } from '../theme/tokens';
 import {
-  fontSize, fontWeight, lineHeight, radius, spacing,
+  fontSize, fontWeight, lineHeight, onPastelColor, pastelColors, radius, spacing,
   severityColors, type Severity,
 } from '../theme/designSystem';
+import { SeverityChip, StatusChip } from '../components/Chip';
 
 const { width } = Dimensions.get('window');
 
@@ -41,7 +54,7 @@ function EmptyState() {
   const { theme } = useTheme();
   return (
     <View style={[styles.empty, { backgroundColor: theme.colors.surface1, borderColor: theme.colors.border }]}>
-      <Feather name="info" size={40} color={theme.colors.textMuted} style={{ marginBottom: spacing.sm }} />
+      <Icon name="info" size={40} color={theme.colors.textMuted} style={{ marginBottom: spacing.sm }} />
       <Text style={[styles.emptyTitle, { color: theme.colors.textPrimary }]}>Nenhum reporte ainda</Text>
       <Text style={[styles.emptySub, { color: theme.colors.textSecondary }]}>
         Seja o primeiro a reportar um Denúncia em Caxias!
@@ -53,35 +66,32 @@ function EmptyState() {
 // ── Report mini card ────────────────────────────────────────────────────────
 function ReportMini({ item, onPress }: { item: any; onPress: () => void }) {
   const { theme } = useTheme();
-  const CARD_IMAGE_WIDTH = width - (spacing.lg * 2) - (spacing.md * 2) - 20;
+  const cover: string | undefined = item.images?.[0];
 
   return (
     <TouchableOpacity
       onPress={onPress}
       activeOpacity={0.7}
-      style={[styles.reportRow, { backgroundColor: theme.colors.surface1, borderColor: theme.colors.border }]}
+      style={[styles.reportRow, { backgroundColor: theme.colors.surface1 }]}
     >
-      <View style={[styles.dot, { backgroundColor: item.severityColor }]} />
-      <View style={{ flex: 1 }}>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-          <View style={{ flex: 1 }}>
-            <Text style={[styles.reportStreet, { color: theme.colors.textPrimary }]}>{item.street}</Text>
-            <Text style={[styles.reportSub, { color: theme.colors.textSecondary }]}>
-              {item.neighborhood} · {getRelativeTime(item.createdAt)}
-            </Text>
-          </View>
-          <View style={[styles.sevBadge, { backgroundColor: item.severityColor + '22', borderColor: item.severityColor + '55' }]}>
-            <Text style={[styles.sevText, { color: item.severityColor }]}>{item.severity}</Text>
-          </View>
+      {cover ? (
+        <Image source={{ uri: cover }} style={styles.reportThumb} />
+      ) : (
+        <View style={[styles.reportThumb, styles.reportThumbEmpty, { backgroundColor: pastelColors.mint }]}>
+          <Icon name="map-pin" size={28} color={onPastelColor} />
         </View>
-        {item.images?.length > 0 && (
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.miniGallery} contentContainerStyle={{ gap: spacing.sm }}>
-            {item.images.map((img: string, i: number) => (
-              <Image key={i} source={{ uri: img }} style={[styles.miniImage, { width: CARD_IMAGE_WIDTH * 0.8 }]} />
-            ))}
-          </ScrollView>
-        )}
+      )}
+      <View style={styles.reportBody}>
+        <Text style={[styles.reportStreet, { color: theme.colors.textPrimary }]} numberOfLines={1}>{item.street}</Text>
+        <Text style={[styles.reportSub, { color: theme.colors.textMuted }]} numberOfLines={1}>
+          {item.neighborhood} · {getRelativeTime(item.createdAt)}
+        </Text>
+        <View style={styles.reportChips}>
+          <SeverityChip severity={item.severity} />
+          {!!item.status && <StatusChip status={item.status} />}
+        </View>
       </View>
+      <Icon name="chevron-right" size={18} color={theme.colors.textMuted} />
     </TouchableOpacity>
   );
 }
@@ -205,7 +215,7 @@ export const HomeScreen = () => {
                 onPress={toggleTheme}
                 style={[styles.themeToggle, { backgroundColor: theme.colors.surface1, borderColor: theme.colors.border }]}
               >
-                <Feather name={isDark ? 'sun' : 'moon'} size={20} color={theme.colors.textPrimary} />
+                <Icon name={isDark ? 'sun' : 'moon'} size={20} color={theme.colors.textPrimary} />
               </TouchableOpacity>
               <UserAvatar user={user} />
             </View>
@@ -241,7 +251,7 @@ export const HomeScreen = () => {
               icon="trash-2"
               title="Onde descartar"
               description="Pontos de coleta de resíduos"
-              accentColor="#2E7D32"
+              accentColor={theme.colors.emerald}
               onPress={() => navigation.navigate('DropOff')}
             />
           </View>
@@ -250,7 +260,7 @@ export const HomeScreen = () => {
           <View style={styles.rankingSection}>
             <View style={styles.sectionTitleRow}>
               <Text style={[styles.sectionTitle, { color: theme.colors.textPrimary }]}>Top 3 Colaboradores</Text>
-              <Feather name="award" size={16} color={theme.colors.primary} />
+              <Icon name="award" size={16} color={theme.colors.primary} />
             </View>
             {ranking.loading ? (
               <View style={[styles.loadingBox, styles.rankingMessage, { backgroundColor: theme.colors.surface1, borderColor: theme.colors.border }]}>
@@ -297,19 +307,19 @@ export const HomeScreen = () => {
               <Text style={{ color: theme.colors.primary, fontSize: fontSize.sm, fontWeight: fontWeight.medium, marginRight: spacing.xs }}>
                 Ver tela cheia
               </Text>
-              <Feather name="arrow-right" size={14} color={theme.colors.primary} />
+              <Icon name="arrow-right" size={14} color={theme.colors.primary} />
             </TouchableOpacity>
           </View>
 
           <Pressable
             onPress={() => setIsMapFullVisible(true)}
-            style={[styles.mapContainer, { borderColor: theme.colors.border, backgroundColor: isDark ? '#1a1a1a' : '#ffffff' }]}
+            style={[styles.mapContainer, { borderColor: theme.colors.border, backgroundColor: theme.colors.surface1 }]}
           >
             <LeafletMap markers={markers} interactive={false} />
             <LinearGradient colors={['transparent', isDark ? 'rgba(0,0,0,0.4)' : 'rgba(0,0,0,0.1)']} style={StyleSheet.absoluteFillObject} />
             <View style={styles.mapOverlay}>
               <View style={[styles.expandBtn, { backgroundColor: theme.colors.primary }]}>
-                <Feather name="maximize-2" size={18} color="#FFF" />
+                <Icon name="maximize-2" size={18} color="#FFF" />
               </View>
             </View>
           </Pressable>
@@ -340,7 +350,7 @@ export const HomeScreen = () => {
                   onPress={() => setIsMapFullVisible(false)}
                   style={[styles.closeBtn, { backgroundColor: theme.colors.surface2, borderColor: theme.colors.border, borderWidth: 1 }]}
                 >
-                  <Feather name="x" size={20} color={theme.colors.textPrimary} />
+                  <Icon name="x" size={20} color={theme.colors.textPrimary} />
                 </TouchableOpacity>
               </View>
               <View style={{ flex: 1 }}>
@@ -354,7 +364,7 @@ export const HomeScreen = () => {
                 />
                 <View style={styles.mapSearchContainer}>
                   <View style={[styles.mapSearchBox, { backgroundColor: theme.colors.surface1, borderColor: theme.colors.border }]}>
-                    <Feather name="search" size={18} color={theme.colors.textMuted} />
+                    <Icon name="search" size={18} color={theme.colors.textMuted} />
                     <TextInput
                       style={[styles.mapSearchInput, { color: theme.colors.textPrimary }]}
                       placeholder="Buscar ruas ou bairros..."
@@ -432,16 +442,15 @@ const styles = StyleSheet.create({
   expandBtn: { width: 44, height: 44, borderRadius: radius.pill, justifyContent: 'center', alignItems: 'center' },
 
   reportsList: { paddingHorizontal: spacing.lg, gap: spacing.sm },
-  reportRow: { flexDirection: 'row', alignItems: 'center', borderRadius: radius.md, padding: spacing.lg, borderWidth: 1, gap: spacing.md },
-  dot: { width: 8, height: 8, borderRadius: 4 },
-  reportStreet: { fontSize: fontSize.sm, fontWeight: fontWeight.medium },
+  reportRow: { flexDirection: 'row', alignItems: 'center', borderRadius: radius.md, padding: spacing.md, gap: spacing.md },
+  reportThumb: { width: 80, height: 80, borderRadius: radius.sm },
+  reportThumbEmpty: { justifyContent: 'center', alignItems: 'center' },
+  reportBody: { flex: 1, minWidth: 0 },
+  reportChips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.xs, marginTop: spacing.sm },
+  reportStreet: { fontSize: fontSize.md, fontWeight: fontWeight.bold },
   reportSub: { fontSize: fontSize.xs, marginTop: spacing.xxs },
-  miniGallery: { marginTop: spacing.sm },
-  miniImage: { height: 120, borderRadius: radius.sm },
-  sevBadge: { paddingHorizontal: spacing.sm, paddingVertical: spacing.xxs, borderRadius: radius.pill, borderWidth: 1, marginLeft: spacing.sm },
-  sevText: { fontSize: fontSize.xs, fontWeight: fontWeight.medium },
 
-  empty: { marginHorizontal: spacing.lg, alignItems: 'center', padding: spacing.xxl, borderRadius: radius.lg, borderWidth: 1, gap: spacing.sm },
+  empty: { marginHorizontal: spacing.lg, alignItems: 'center', padding: spacing.xxl, borderRadius: radius.lg, gap: spacing.sm },
   emptyTitle: { fontWeight: fontWeight.semibold, fontSize: fontSize.md },
   emptySub: { fontSize: fontSize.sm, textAlign: 'center', lineHeight: fontSize.sm * lineHeight.normal },
 

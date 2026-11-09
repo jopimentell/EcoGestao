@@ -1,30 +1,40 @@
 import React, { useRef, useEffect, useState } from 'react';
 import {
-  View, Text, TextInput, StyleSheet, Pressable,
-  Animated, Easing, ScrollView, KeyboardAvoidingView,
-  Platform, ActivityIndicator, Image, Alert,
+  View,
+  StyleSheet,
+  Pressable,
+  Animated,
+  Easing,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+  ActivityIndicator,
+  Image,
+  Alert,
 } from 'react-native';
+import { Text, TextInput } from '../../components/Typography';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Feather } from '@expo/vector-icons';
+import { Icon } from '../../components/Icon';
 import * as ImagePicker from 'expo-image-picker';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useAuth } from '../../context/AuthContext';
 import { BeamButton } from '../../components/BeamButton';
 import { ModernAlert } from '../../components/ModernAlert';
 import { theme as staticTheme } from '../../theme/tokens';
+import { avatarColors, defaultAvatarColor, onPastelColor, semanticColors } from '../../theme/designSystem';
 import { AuthStackParamList } from '../../navigation/AuthNavigator';
 import { useTheme } from '../../context/ThemeContext';
 
 type Props = { navigation: NativeStackNavigationProp<AuthStackParamList, 'Register'> };
 
 const AVATARS = [
-  { key: 'orange',  bg: '#F97316' },
-  { key: 'indigo',  bg: '#6366F1' },
-  { key: 'emerald', bg: '#10B981' },
-  { key: 'rose',    bg: '#F43F5E' },
-  { key: 'sky',     bg: '#0EA5E9' },
-  { key: 'violet',  bg: '#8B5CF6' },
+  { key: 'orange',  bg: avatarColors.orange },
+  { key: 'indigo',  bg: avatarColors.indigo },
+  { key: 'emerald', bg: avatarColors.emerald },
+  { key: 'rose',    bg: avatarColors.rose },
+  { key: 'sky',     bg: avatarColors.sky },
+  { key: 'violet',  bg: avatarColors.violet },
 ];
 
 function Field({ label, placeholder, value, onChangeText, secure = false, keyboardType = 'default', autoCapitalize = 'none', theme }: {
@@ -56,7 +66,7 @@ function Field({ label, placeholder, value, onChangeText, secure = false, keyboa
         />
         {secure && (
           <Pressable onPress={() => setShowPwd(!showPwd)} style={{ padding: 4 }}>
-            <Feather name={showPwd ? 'eye-off' : 'eye'} size={18} color={theme.colors.textMuted} />
+            <Icon name={showPwd ? 'eye-off' : 'eye'} size={18} color={theme.colors.textMuted} />
           </Pressable>
         )}
       </Animated.View>
@@ -142,7 +152,7 @@ export function RegisterScreen({ navigation }: Props) {
 
             <View style={styles.header}>
               <Pressable onPress={() => step === 1 ? setStep(0) : navigation.goBack()} style={styles.backBtn}>
-                <Feather name="arrow-left" size={16} color={theme.colors.primary} />
+                <Icon name="arrow-left" size={16} color={theme.colors.primary} />
                 <Text style={[styles.backText, { color: theme.colors.primary, marginLeft: 4 }]}>Voltar</Text>
               </Pressable>
               <Text style={[styles.headerTitle, { color: theme.colors.textPrimary }]}>{step === 0 ? 'Criar conta' : 'Foto de perfil'}</Text>
@@ -156,8 +166,8 @@ export function RegisterScreen({ navigation }: Props) {
                 <Field label="Senha" placeholder="Mínimo 6 caracteres" value={password} onChangeText={setPassword} secure theme={theme} />
                 <Field label="Confirmar senha" placeholder="Repita sua senha" value={confirm} onChangeText={setConfirm} secure theme={theme} />
                 {!!error && (
-                  <View style={[styles.errorBox, { backgroundColor: isDark ? 'rgba(239,68,68,0.15)' : 'rgba(239,68,68,0.05)' }]}>
-                    <Feather name="alert-circle" size={14} color="#EF4444" style={{ marginRight: 8 }} />
+                  <View style={[styles.errorBox, { backgroundColor: isDark ? 'rgba(217,48,54,0.15)' : 'rgba(217,48,54,0.05)' }]}>
+                    <Icon name="alert-circle" size={14} color={semanticColors.danger} style={{ marginRight: 8 }} />
                     <Text style={styles.errorText}>{error}</Text>
                   </View>
                 )}
@@ -173,7 +183,7 @@ export function RegisterScreen({ navigation }: Props) {
             {step === 1 && (
               <View style={[styles.card, { backgroundColor: theme.colors.surface1, borderColor: theme.colors.border }]}>
                 <View style={styles.avatarSection}>
-                  <View style={[styles.avatarPreview, { borderColor: theme.colors.borderLight }, !isCustom && { backgroundColor: AVATARS.find(a => a.key === avatar)?.bg || '#F97316' }]}>
+                  <View style={[styles.avatarPreview, { borderColor: theme.colors.borderLight }, !isCustom && { backgroundColor: AVATARS.find(a => a.key === avatar)?.bg || defaultAvatarColor }]}>
                     {isCustom ? (
                       <Image source={{ uri: avatar }} style={styles.avatarImg} />
                     ) : (
@@ -182,7 +192,7 @@ export function RegisterScreen({ navigation }: Props) {
                   </View>
                   
                   <Pressable style={[styles.galleryBtn, { backgroundColor: theme.colors.surface2, borderColor: theme.colors.border }]} onPress={pickImage}>
-                    <Feather name="image" size={18} color={theme.colors.primary} />
+                    <Icon name="image" size={18} color={theme.colors.primary} />
                     <Text style={[styles.galleryBtnText, { color: theme.colors.textPrimary }]}>Escolher da Galeria</Text>
                   </Pressable>
 
@@ -225,17 +235,17 @@ const styles = StyleSheet.create({
   fieldLabel:  { fontSize: 12, color: staticTheme.colors.textSecondary, fontFamily: staticTheme.typography.fontFamily.medium, textTransform: 'uppercase', letterSpacing: 0.5 },
   fieldBox:    { flexDirection: 'row', alignItems: 'center', backgroundColor: staticTheme.colors.surface2, borderRadius: staticTheme.radii.md, borderWidth: 1.5, paddingHorizontal: staticTheme.spacing.md },
   fieldInput:  { flex: 1, color: staticTheme.colors.textPrimary, fontSize: 15, fontFamily: staticTheme.typography.fontFamily.regular, paddingVertical: 13 },
-  errorBox:   { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(239,68,68,0.1)', borderRadius: staticTheme.radii.md, borderWidth: 1, borderColor: 'rgba(239,68,68,0.3)', padding: staticTheme.spacing.sm },
-  errorText:  { color: '#EF4444', fontSize: 13, fontFamily: staticTheme.typography.fontFamily.regular, flex: 1 },
+  errorBox:   { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(217,48,54,0.1)', borderRadius: staticTheme.radii.md, borderWidth: 1, borderColor: 'rgba(217,48,54,0.3)', padding: staticTheme.spacing.sm },
+  errorText:  { color: semanticColors.danger, fontSize: 13, fontFamily: staticTheme.typography.fontFamily.regular, flex: 1 },
   btn:        { marginTop: 4 },
   avatarSection:   { alignItems: 'center', gap: staticTheme.spacing.md },
   avatarPreview:   { width: 96, height: 96, borderRadius: 48, justifyContent: 'center', alignItems: 'center', borderWidth: 3, borderColor: 'rgba(255,255,255,0.15)', overflow: 'hidden' },
   avatarImg:       { width: '100%', height: '100%' },
-  avatarPreviewText:{ color: '#FFF', fontSize: 30, fontFamily: staticTheme.typography.fontFamily.semiBold },
+  avatarPreviewText:{ color: onPastelColor, fontSize: 30, fontFamily: staticTheme.typography.fontFamily.semiBold },
   galleryBtn:      { flexDirection: 'row', alignItems: 'center', backgroundColor: staticTheme.colors.surface2, paddingVertical: 10, paddingHorizontal: 16, borderRadius: staticTheme.radii.full, borderWidth: 1, borderColor: staticTheme.colors.border, gap: 8 },
   galleryBtnText:  { color: staticTheme.colors.textPrimary, fontSize: 13, fontFamily: staticTheme.typography.fontFamily.medium },
   avatarHint:      { color: staticTheme.colors.textMuted, fontSize: 12, fontFamily: staticTheme.typography.fontFamily.regular, marginTop: 8 },
   avatarGrid:      { flexDirection: 'row', flexWrap: 'wrap', gap: staticTheme.spacing.sm, justifyContent: 'center' },
   avatarOption:    { width: 42, height: 42, borderRadius: 21 },
-  avatarOptionSelected: { borderWidth: 3, borderColor: '#FFF' },
+  avatarOptionSelected: { borderWidth: 3, borderColor: staticTheme.colors.primary },
 });

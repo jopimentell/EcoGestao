@@ -2,8 +2,9 @@
 // Registro de ocorrência Web Desktop: as 3 etapas ficam visíveis em uma única página
 // (localização e detalhes na coluna principal, revisão/envio no painel lateral).
 import React, { useState } from 'react';
-import { ActivityIndicator, Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import { Feather } from '@expo/vector-icons';
+import { ActivityIndicator, Image, Pressable, StyleSheet, View } from 'react-native';
+import { Text, TextInput } from '../components/Typography';
+import { Icon, type IconName } from '../components/Icon';
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
 import { useNavigation } from '@react-navigation/native';
@@ -24,12 +25,11 @@ import {
 
 const { ReportScreen: MobileReportScreen } = require('./ReportScreen.tsx') as typeof import('./ReportScreen');
 
-type FeatherName = keyof typeof Feather.glyphMap;
 
 const MAX_PHOTOS = 3;
 const DEFAULT_CENTER = { lat: -4.8622, lng: -43.3561 }; // Caxias-MA (mesmo centro do LeafletMap)
 
-const SEVERITIES: { label: Severity; icon: FeatherName }[] = [
+const SEVERITIES: { label: Severity; icon: IconName }[] = [
   { label: 'Baixa',   icon: 'circle' },
   { label: 'Média',   icon: 'circle' },
   { label: 'Alta',    icon: 'circle' },
@@ -73,7 +73,7 @@ function StepTitle({ n, title, done }: { n: number; title: string; done: boolean
           : { backgroundColor: theme.colors.primary + tint.soft, borderColor: theme.colors.primary },
       ]}>
         {done
-          ? <Feather name="check" size={iconSize.sm} color={onAccentColor} />
+          ? <Icon name="check" size={iconSize.sm} color={onAccentColor} />
           : <Text style={[styles.stepDotText, { color: theme.colors.primary }]}>{n}</Text>}
       </View>
       <Text style={[styles.stepTitle, { color: theme.colors.textPrimary }]}>{title}</Text>
@@ -86,7 +86,7 @@ function CheckItem({ ok, label }: { ok: boolean; label: string }) {
   const { theme } = useTheme();
   return (
     <View style={styles.checkRow}>
-      <Feather name={ok ? 'check-circle' : 'circle'} size={iconSize.sm} color={ok ? severityColors.Baixa : theme.colors.textMuted} />
+      <Icon name={ok ? 'check-circle' : 'circle'} size={iconSize.sm} color={ok ? severityColors.Baixa : theme.colors.textMuted} />
       <Text style={[styles.checkText, { color: ok ? theme.colors.textPrimary : theme.colors.textMuted }]}>{label}</Text>
     </View>
   );
@@ -184,7 +184,7 @@ function ReportDesktop() {
       <DesktopContainer maxWidth={layout.maxFormWidth} contentStyle={styles.successWrap}>
         <DesktopCard style={styles.successCard}>
           <View style={[styles.successIcon, { backgroundColor: theme.colors.primary + tint.soft, borderColor: theme.colors.primary + tint.strong }]}>
-            <Feather name="map-pin" size={iconSize.xl} color={theme.colors.primary} />
+            <Icon name="map-pin" size={iconSize.xl} color={theme.colors.primary} />
           </View>
           <Text style={[styles.successTitle, { color: theme.colors.textPrimary }]}>Reporte enviado!</Text>
           <Text style={[styles.successSub, { color: theme.colors.textSecondary }]}>
@@ -218,7 +218,7 @@ function ReportDesktop() {
           >
             {loadingLoc
               ? <ActivityIndicator size="small" color={onAccentColor} />
-              : <Feather name="target" size={iconSize.sm} color={onAccentColor} />}
+              : <Icon name="target" size={iconSize.sm} color={onAccentColor} />}
             <Text style={styles.gpsText}>Usar minha localização</Text>
           </Pressable>
         </View>
@@ -255,7 +255,7 @@ function ReportDesktop() {
                   active && { backgroundColor: color + tint.subtle },
                 ]}
               >
-                <Feather name={s.icon} size={iconSize.sm} color={active ? color : theme.colors.textMuted} />
+                <Icon name={s.icon} size={iconSize.sm} color={active ? color : theme.colors.textMuted} />
                 <Text style={[styles.severityText, { color: active ? color : theme.colors.textSecondary }]}>{s.label}</Text>
               </Pressable>
             );
@@ -274,7 +274,7 @@ function ReportDesktop() {
                 style={[styles.photoRemove, { backgroundColor: severityColors.Alta, borderColor: theme.colors.surface1 }]}
                 accessibilityLabel="Remover foto"
               >
-                <Feather name="x" size={iconSize.sm} color={onAccentColor} />
+                <Icon name="x" size={iconSize.sm} color={onAccentColor} />
               </Pressable>
             </View>
           ))}
@@ -286,7 +286,7 @@ function ReportDesktop() {
                 { backgroundColor: theme.colors.surface2, borderColor: hovered ? theme.colors.primary : theme.colors.border },
               ]}
             >
-              <Feather name="upload" size={iconSize.md} color={theme.colors.textMuted} />
+              <Icon name="upload" size={iconSize.md} color={theme.colors.textMuted} />
               <Text style={[styles.photoSlotText, { color: theme.colors.textMuted }]}>Adicionar</Text>
             </Pressable>
           )}
@@ -324,7 +324,7 @@ function ReportDesktop() {
           'Os reportes passam por moderação antes de ficarem públicos.',
         ].map((tip) => (
           <View key={tip} style={styles.tipRow}>
-            <Feather name="info" size={iconSize.sm} color={theme.colors.primary} />
+            <Icon name="info" size={iconSize.sm} color={theme.colors.primary} />
             <Text style={[styles.tipText, { color: theme.colors.textSecondary }]}>{tip}</Text>
           </View>
         ))}

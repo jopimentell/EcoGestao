@@ -1,16 +1,16 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import {
   View,
-  Text,
   StyleSheet,
   Pressable,
   ViewStyle,
   TextStyle,
   Animated,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Feather } from '@expo/vector-icons';
+import { Text } from './Typography';
+import { Icon, type IconName } from './Icon';
 import { useTheme } from '../context/ThemeContext';
+import { fontSize, fontWeight, onAccentColor, radius, spacing } from '../theme/designSystem';
 
 interface BeamButtonProps {
   title: string;
@@ -18,10 +18,15 @@ interface BeamButtonProps {
   style?: ViewStyle;
   textStyle?: TextStyle;
   isPrimary?: boolean;
-  iconLeft?: string;
-  iconRight?: string;
+  iconLeft?: IconName;
+  iconRight?: IconName;
 }
 
+const HEIGHT = 52;
+const BADGE = 38;
+
+// Botão pill do Design System: texto centralizado e, quando há iconRight,
+// um círculo à direita com o ícone (padrão "Next →" da referência visual).
 export const BeamButton: React.FC<BeamButtonProps> = ({
   title,
   onPress,
@@ -32,145 +37,92 @@ export const BeamButton: React.FC<BeamButtonProps> = ({
   iconRight,
 }) => {
   const { theme } = useTheme();
-  const rotation = useRef(new Animated.Value(0)).current;
   const scale = useRef(new Animated.Value(1)).current;
 
-  useEffect(() => {
-    Animated.loop(
-      Animated.timing(rotation, {
-        toValue: 1,
-        duration: 3000,
-        useNativeDriver: true,
-      })
-    ).start();
-  }, [rotation]);
-
-  const spin = rotation.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0deg', '360deg'],
-  });
-
-  const onPressIn = () => {
-    Animated.spring(scale, {
-      toValue: 0.97,
-      useNativeDriver: true,
-      speed: 50,
-    }).start();
+  const animate = (toValue: number) => {
+    Animated.spring(scale, { toValue, useNativeDriver: true, speed: 50 }).start();
   };
 
-  const onPressOut = () => {
-    Animated.spring(scale, {
-      toValue: 1,
-      useNativeDriver: true,
-      speed: 50,
-    }).start();
-  };
+  const contentColor = isPrimary ? onAccentColor : theme.colors.textPrimary;
+  const badgeBg = isPrimary ? theme.colors.primaryStrong : theme.colors.surface2;
 
   return (
     <Animated.View style={[styles.container, style, { transform: [{ scale }] }]}>
       <Pressable
         onPress={onPress}
-        onPressIn={onPressIn}
-        onPressOut={onPressOut}
-        style={StyleSheet.absoluteFill}
+        onPressIn={() => animate(0.97)}
+        onPressOut={() => animate(1)}
+        style={[
+          styles.inner,
+          isPrimary
+            ? { backgroundColor: theme.colors.primary }
+            : { backgroundColor: theme.colors.surface1, borderColor: theme.colors.border, borderWidth: 1 },
+        ]}
       >
-        {/* Rotating gradient border */}
-        <View style={styles.borderWrapper}>
-          <Animated.View
-            style={[
-              styles.beamContent,
-              { transform: [{ translateX: -75 }, { translateY: -75 }, { rotate: spin }] },
-            ]}
-          >
-            <LinearGradient
-              colors={
-                isPrimary
-                  ? ['transparent', theme.colors.primary, 'transparent']
-                  : ['transparent', theme.colors.textSecondary, 'transparent']
-              }
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={StyleSheet.absoluteFillObject}
-            />
-          </Animated.View>
-        </View>
+        {iconRight ? <View style={styles.badgeSpacer} /> : null}
 
-        {/* Inner button content */}
-        <View
-          style={[
-            styles.inner,
-            isPrimary
-              ? { backgroundColor: theme.colors.primary }
-              : { backgroundColor: theme.colors.surface1 },
-          ]}
-        >
-          {iconLeft && (
-            <Feather 
-              name={iconLeft as any} 
-              size={16} 
-              color={isPrimary ? '#FFF' : theme.colors.textPrimary} 
-              style={{ marginRight: 8 }} 
-            />
-          )}
-          
+        <View style={styles.label}>
+          {iconLeft ? (
+            <Icon name={iconLeft} size={18} color={contentColor} style={styles.iconLeft} />
+          ) : null}
           <Text
+            numberOfLines={1}
             style={[
               styles.text,
-              isPrimary
-                ? { color: '#FFF', fontWeight: '600' }
-                : { color: theme.colors.textPrimary },
+              { color: contentColor },
+              isPrimary && { fontWeight: fontWeight.bold },
               textStyle,
             ]}
           >
             {title}
           </Text>
-
-          {iconRight && (
-            <Feather 
-              name={iconRight as any} 
-              size={16} 
-              color={isPrimary ? '#FFF' : theme.colors.textPrimary} 
-              style={{ marginLeft: 8 }} 
-            />
-          )}
         </View>
+
+        {iconRight ? (
+          <View style={[styles.badge, { backgroundColor: badgeBg }]}>
+            <Icon name={iconRight} size={18} color={contentColor} weight="bold" />
+          </View>
+        ) : null}
       </Pressable>
     </Animated.View>
   );
 };
 
-
 const styles = StyleSheet.create({
   container: {
-    height: 52,
-    borderRadius: 26, // Fallback if theme.radii is not available
-    overflow: 'hidden',
-  },
-  borderWrapper: {
-    ...StyleSheet.absoluteFillObject,
-    borderRadius: 26,
-    overflow: 'hidden',
-  },
-  beamContent: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width: '200%',
-    height: '200%',
+    height: HEIGHT,
+    borderRadius: radius.pill,
   },
   inner: {
-    margin: 2,
-    borderRadius: 24,
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: radius.pill,
+    paddingHorizontal: (HEIGHT - BADGE) / 2,
+  },
+  label: {
     flex: 1,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 16,
+    paddingHorizontal: spacing.sm,
+  },
+  iconLeft: {
+    marginRight: spacing.sm,
+  },
+  badgeSpacer: {
+    width: BADGE,
+  },
+  badge: {
+    width: BADGE,
+    height: BADGE,
+    borderRadius: BADGE / 2,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   text: {
-    fontSize: 14,
-    fontFamily: 'Inter-Medium',
-    letterSpacing: 0.3,
+    fontSize: fontSize.md,
+    fontWeight: fontWeight.semibold,
+    letterSpacing: 0.2,
   },
 });
-

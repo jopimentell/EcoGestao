@@ -1,8 +1,9 @@
 // mobile/src/screens/ProfileScreen.web.tsx
 // Perfil Web Desktop: coluna lateral com identidade/estatísticas/menu e área principal com conquistas e reportes.
 import React, { useMemo } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { Feather } from '@expo/vector-icons';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { Text } from '../components/Typography';
+import { Icon, type IconName } from '../components/Icon';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useAuth } from '../context/AuthContext';
@@ -20,7 +21,6 @@ import {
 
 const { ProfileScreen: MobileProfileScreen } = require('./ProfileScreen.tsx') as typeof import('./ProfileScreen');
 
-type FeatherName = keyof typeof Feather.glyphMap;
 
 // Mesmas faixas de nível da versão mobile
 const getLevelInfo = (reportCount: number) => {
@@ -31,7 +31,7 @@ const getLevelInfo = (reportCount: number) => {
   return { name: 'Novato', nextLevel: 3, progressPercent: (reportCount / 3) * 100 };
 };
 
-const ACHIEVEMENTS: { id: string; icon: FeatherName; label: string; hint: string }[] = [
+const ACHIEVEMENTS: { id: string; icon: IconName; label: string; hint: string }[] = [
   { id: '1', icon: 'target', label: 'Primeiro Reporte', hint: 'Envie seu primeiro reporte' },
   { id: '2', icon: 'hash',   label: '10 Reportes',      hint: 'Envie 10 reportes' },
   { id: '3', icon: 'star',   label: '5 Resolvidos',     hint: 'Tenha 5 reportes resolvidos' },
@@ -82,7 +82,7 @@ function ProfileDesktop() {
   const { userReports, userReportsCount, resolvedCount, userRank, achievements, levelInfo } = data;
   const unlocked = achievements.filter((a) => a.done).length;
 
-  const MENU_ITEMS: { icon: FeatherName; label: string; sub: string; danger?: boolean; onPress?: () => void }[] = [
+  const MENU_ITEMS: { icon: IconName; label: string; sub: string; danger?: boolean; onPress?: () => void }[] = [
     { icon: 'bell', label: 'Notificações', sub: 'Novidades dos seus reportes' },
     { icon: 'shield', label: 'Privacidade', sub: 'Gerencie seus dados' },
     { icon: 'message-circle', label: 'Feedback', sub: 'Nos ajude a melhorar' },
@@ -104,7 +104,7 @@ function ProfileDesktop() {
         <Text style={[styles.name, { color: theme.colors.textPrimary }]}>{user.name}</Text>
         <Text style={[styles.handle, { color: theme.colors.textMuted }]}>{user.handle || user.email}</Text>
         <View style={[styles.levelPill, { backgroundColor: theme.colors.primary + tint.soft, borderColor: theme.colors.primary + tint.strong }]}>
-          <Feather name="star" size={iconSize.sm} color={theme.colors.primary} />
+          <Icon name="star" size={iconSize.sm} color={theme.colors.primary} />
           <Text style={[styles.levelPillText, { color: theme.colors.primary }]}>{levelInfo.name}</Text>
         </View>
         <Text style={[styles.joined, { color: theme.colors.textMuted }]}>Membro desde {user.joinedAt}</Text>
@@ -140,12 +140,12 @@ function ProfileDesktop() {
               hovered && { backgroundColor: theme.colors.surface2 },
             ]}
           >
-            <Feather name={item.icon} size={iconSize.sm} color={item.danger ? severityColors.Alta : theme.colors.primary} />
+            <Icon name={item.icon} size={iconSize.sm} color={item.danger ? severityColors.Alta : theme.colors.primary} />
             <View style={styles.menuText}>
               <Text style={[styles.menuLabel, { color: item.danger ? severityColors.Alta : theme.colors.textPrimary }]}>{item.label}</Text>
               <Text style={[styles.menuSub, { color: theme.colors.textMuted }]}>{item.sub}</Text>
             </View>
-            <Feather name="chevron-right" size={iconSize.sm} color={theme.colors.textMuted} />
+            <Icon name="chevron-right" size={iconSize.sm} color={theme.colors.textMuted} />
           </Pressable>
         ))}
       </DesktopCard>
@@ -170,7 +170,7 @@ function ProfileDesktop() {
                 : { backgroundColor: theme.colors.surface2, borderColor: theme.colors.border },
             ]}>
               <View style={[styles.achievIcon, { backgroundColor: a.done ? theme.colors.primary + tint.soft : theme.colors.surface3 }]}>
-                <Feather name={a.done ? a.icon : 'lock'} size={iconSize.md} color={a.done ? theme.colors.primary : theme.colors.textMuted} />
+                <Icon name={a.done ? a.icon : 'lock'} size={iconSize.md} color={a.done ? theme.colors.primary : theme.colors.textMuted} />
               </View>
               <View style={styles.achievText}>
                 <Text style={[styles.achievLabel, { color: a.done ? theme.colors.textPrimary : theme.colors.textSecondary }]}>{a.label}</Text>
@@ -184,7 +184,7 @@ function ProfileDesktop() {
       <DesktopCard title={`Seus reportes (${userReportsCount})`}>
         {userReports.length === 0 ? (
           <View style={styles.empty}>
-            <Feather name="file-text" size={iconSize.xl} color={theme.colors.textMuted} />
+            <Icon name="file-text" size={iconSize.xl} color={theme.colors.textMuted} />
             <Text style={[styles.muted, { color: theme.colors.textSecondary }]}>Você ainda não enviou nenhum reporte.</Text>
           </View>
         ) : (
@@ -207,7 +207,7 @@ function ProfileDesktop() {
                   </Text>
                 </View>
                 <DesktopBadge label={r.status} color={getStatusColor(r.status, theme)} />
-                <Feather name="chevron-right" size={iconSize.sm} color={theme.colors.textMuted} />
+                <Icon name="chevron-right" size={iconSize.sm} color={theme.colors.textMuted} />
               </Pressable>
             ))}
           </View>

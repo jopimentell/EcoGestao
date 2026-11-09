@@ -1,8 +1,9 @@
 // mobile/src/screens/auth/LoginScreen.web.tsx
 // Login Web Desktop: painel institucional à esquerda + formulário (máx. 480px) à direita.
 import React, { useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import { Feather } from '@expo/vector-icons';
+import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
+import { Text, TextInput } from '../../components/Typography';
+import { Icon, type IconName } from '../../components/Icon';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
@@ -16,9 +17,8 @@ import {
 const { LoginScreen: MobileLoginScreen } = require('./LoginScreen.tsx') as typeof import('./LoginScreen');
 
 type Props = { navigation: NativeStackNavigationProp<AuthStackParamList, 'Login'> };
-type FeatherName = keyof typeof Feather.glyphMap;
 
-const FEATURES: { icon: FeatherName; title: string; text: string }[] = [
+const FEATURES: { icon: IconName; title: string; text: string }[] = [
   { icon: 'camera', title: 'Registre ocorrências', text: 'Foto, tipo de resíduo e localização em poucos passos.' },
   { icon: 'map', title: 'Acompanhe no mapa', text: 'Veja os pontos de descarte irregular da sua cidade.' },
   { icon: 'award', title: 'Ganhe reconhecimento', text: 'Suba de nível e desbloqueie conquistas colaborando.' },
@@ -58,7 +58,7 @@ export function WebField({
         />
         {secure && (
           <Pressable onPress={() => setShowPwd(!showPwd)} style={styles.eyeBtn} accessibilityLabel={showPwd ? 'Ocultar senha' : 'Mostrar senha'}>
-            <Feather name={showPwd ? 'eye-off' : 'eye'} size={iconSize.sm} color={theme.colors.textMuted} />
+            <Icon name={showPwd ? 'eye-off' : 'eye'} size={iconSize.sm} color={theme.colors.textMuted} />
           </Pressable>
         )}
       </View>
@@ -74,7 +74,7 @@ export function AuthHeroPanel() {
       <View style={styles.heroInner}>
         <View style={styles.brandRow}>
           <View style={[styles.logo, { backgroundColor: theme.colors.primary + tint.soft, borderColor: theme.colors.primary + tint.medium }]}>
-            <Feather name="map-pin" size={iconSize.md} color={theme.colors.primary} />
+            <Icon name="map-pin" size={iconSize.md} color={theme.colors.primary} />
           </View>
           <Text style={[styles.brandName, { color: theme.colors.textPrimary }]}>EcoGestão</Text>
         </View>
@@ -90,7 +90,7 @@ export function AuthHeroPanel() {
           {FEATURES.map((f) => (
             <View key={f.title} style={styles.featureRow}>
               <View style={[styles.featureIcon, { backgroundColor: theme.colors.primary + tint.subtle }]}>
-                <Feather name={f.icon} size={iconSize.sm} color={theme.colors.primary} />
+                <Icon name={f.icon} size={iconSize.sm} color={theme.colors.primary} />
               </View>
               <View style={styles.featureText}>
                 <Text style={[styles.featureTitle, { color: theme.colors.textPrimary }]}>{f.title}</Text>
@@ -108,7 +108,7 @@ export function AuthHeroPanel() {
 export function FormError({ message }: { message: string }) {
   return (
     <View style={[styles.errorBox, { backgroundColor: severityColors.Alta + tint.subtle, borderColor: severityColors.Alta + tint.strong }]}>
-      <Feather name="alert-circle" size={iconSize.sm} color={severityColors.Alta} />
+      <Icon name="alert-circle" size={iconSize.sm} color={severityColors.Alta} />
       <Text style={[styles.errorText, { color: severityColors.Alta }]}>{message}</Text>
     </View>
   );
@@ -161,7 +161,7 @@ function LoginDesktop({ navigation }: Props) {
               Não tem conta?{' '}
               <Text style={[styles.switchHighlight, { color: theme.colors.primary }]}>Criar conta gratuita</Text>
             </Text>
-            <Feather name="arrow-right" size={iconSize.sm} color={theme.colors.primary} />
+            <Icon name="arrow-right" size={iconSize.sm} color={theme.colors.primary} />
           </Pressable>
         </View>
       </View>

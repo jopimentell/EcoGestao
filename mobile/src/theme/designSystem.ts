@@ -13,10 +13,10 @@ export const spacing = {
 } as const;
 
 export const radius = {
-  xs:   6,
-  sm:   10,
-  md:   14,
-  lg:   20,
+  xs:   8,
+  sm:   12,
+  md:   16,
+  lg:   22,
   xl:   28,
   pill: 999,
 } as const;
@@ -37,11 +37,22 @@ export const lineHeight = {
   relaxed: 1.6,
 } as const;
 
+// Família por peso (Nunito). Resolvida automaticamente pelos componentes Text/TextInput
+// de src/components/Typography.tsx a partir do fontWeight.
+export const fontFamilyByWeight = {
+  '400': 'Nunito-Regular',
+  '500': 'Nunito-Medium',
+  '600': 'Nunito-SemiBold',
+  '700': 'Nunito-Bold',
+  '800': 'Nunito-ExtraBold',
+} as const;
+
 export const fontWeight = {
   regular:  '400' as const,
   medium:   '500' as const,
   semibold: '600' as const,
   bold:     '700' as const,
+  extrabold: '800' as const,
 };
 
 export const iconSize = {
@@ -54,14 +65,14 @@ export const iconSize = {
 
 export const shadows = {
   sm: {
-    shadowColor: '#0F172A',
+    shadowColor: '#232323',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.06,
     shadowRadius: 3,
     elevation: 1,
   },
   md: {
-    shadowColor: '#0F172A',
+    shadowColor: '#232323',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.08,
     shadowRadius: 10,
@@ -113,23 +124,83 @@ export const materials = [
 
 export type Material = (typeof materials)[number];
 
-// Cores semânticas de severidade (domínio fixo, não muda com tema)
+// Pastéis da marca (fixos, iguais nos dois temas) — sempre com texto escuro por cima
+export const pastelColors = {
+  mint:     '#DDF0E5',
+  lime:     '#EBF4C2',
+  peach:    '#FED9A2',
+  lavender: '#CAC4F8',
+  sky:      '#D0F3FD',
+  rose:     '#F7D6D0',
+} as const;
+
+// Texto/ícone sobre fundos pastel
+export const onPastelColor = '#204630';
+
+// Cores semânticas (domínio fixo, não muda com tema)
+export const semanticColors = {
+  success: '#459C6A',
+  warning: '#D4A017',
+  alert:   '#CB5E0C',
+  danger:  '#D93036',
+  info:    '#7B6FD6',
+  neutral: '#8A8A8A',
+} as const;
+
 export const severityColors = {
-  Baixa:   '#22C55E',
-  Média:   '#F97316',
-  Alta:    '#EF4444',
-  Crítica: '#A855F7',
+  Baixa:   semanticColors.success,
+  Média:   semanticColors.warning,
+  Alta:    semanticColors.alert,
+  Crítica: semanticColors.danger,
 } as const;
 
 export type Severity = keyof typeof severityColors;
 
+export const statusColors: Record<string, string> = {
+  'Resolvido':  semanticColors.success,
+  'Aprovado':   semanticColors.info,
+  'Publicado':  semanticColors.info,
+  'Em análise': semanticColors.warning,
+  'Rejeitado':  semanticColors.danger,
+};
+
+// Tons pastel usados em chips/etiquetas (Chip.tsx)
+export type PastelTone = keyof typeof pastelColors | 'neutral';
+
+export const severityTones: Record<string, PastelTone> = {
+  'Baixa':   'mint',
+  'Média':   'lime',
+  'Alta':    'peach',
+  'Crítica': 'rose',
+};
+
+export const statusTones: Record<string, PastelTone> = {
+  'Resolvido':  'mint',
+  'Aprovado':   'lavender',
+  'Publicado':  'lavender',
+  'Em análise': 'peach',
+  'Rejeitado':  'rose',
+};
+
+// Paleta de avatares — as chaves são salvas no perfil, por isso não mudam
+export const avatarColors: Record<string, string> = {
+  orange:  pastelColors.mint,
+  indigo:  pastelColors.lavender,
+  emerald: pastelColors.lime,
+  rose:    pastelColors.rose,
+  sky:     pastelColors.sky,
+  violet:  pastelColors.peach,
+};
+
+export const defaultAvatarColor = pastelColors.mint;
+
 export const levelVisuals: Record<number, { color: string; icon: string }> = {
-  1: { color: '#94A3B8', icon: 'circle' },     // Novato — cinza
-  2: { color: '#22C55E', icon: 'eye' },        // Observador — verde
-  3: { color: '#3B82F6', icon: 'shield' },     // Guardião — azul
-  4: { color: '#A855F7', icon: 'star' },       // Fiscal — roxo
-  5: { color: '#F59E0B', icon: 'award' },      // Herói — dourado
+  1: { color: '#9A9A9A', icon: 'plant' },      // Novato — cinza
+  2: { color: '#8BA33B', icon: 'binoculars' }, // Observador — lima
+  3: { color: '#3E8FA8', icon: 'shield' },     // Guardião — azul-céu
+  4: { color: '#7B6FD6', icon: 'award' },      // Fiscal — lavanda
+  5: { color: '#C9962A', icon: 'crown' },      // Herói — dourado
 };
 
 export const getLevelVisual = (level: number) =>
-  levelVisuals[level] ?? { color: '#94A3B8', icon: 'circle' };
+  levelVisuals[level] ?? { color: '#9A9A9A', icon: 'plant' };

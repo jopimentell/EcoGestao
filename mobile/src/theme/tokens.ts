@@ -1,44 +1,52 @@
 export const darkTheme = {
   colors: {
-    background: '#050505',
-    surface1: '#171717',
-    surface2: '#262626',
-    surface3: '#404040',
-    primary: '#F97316', // Orange
-    primaryMuted: 'rgba(249, 115, 22, 0.2)',
-    indigo: '#6366F1',
-    emerald: '#10B981',
+    background: '#232323',
+    surface1: '#2F2F2F',
+    surface2: '#3A3A3A',
+    surface3: '#474747',
+    primary: '#459C6A', // Verde floresta
+    primaryMuted: 'rgba(69, 156, 106, 0.2)',
+    primaryStrong: '#204630', // Verde profundo (círculo de seta em CTAs, texto sobre pastel)
+    indigo: '#7B6FD6', // Lavanda (status Aprovado/Publicado)
+    emerald: '#8BA33B', // Lima/oliva (acento secundário)
     textPrimary: '#FFFFFF',
-    textSecondary: '#A3A3A3',
-    textMuted: '#737373',
-    border: '#262626',
-    borderLight: 'rgba(255,255,255,0.08)',
-    
+    textSecondary: '#B5B5B5',
+    textMuted: '#8A8A8A',
+    border: '#3A3A3A',
+    borderLight: 'rgba(255,255,255,0.06)',
+    overlay: 'rgba(0,0,0,0.6)',
   },
   spacing: { xs: 4, sm: 8, md: 16, lg: 24, xl: 32, xxl: 64 },
   typography: {
-    fontFamily: { regular: 'Inter-Regular', medium: 'Inter-Medium', semiBold: 'Inter-SemiBold' },
+    fontFamily: {
+      regular: 'Nunito-Regular',
+      medium: 'Nunito-Medium',
+      semiBold: 'Nunito-SemiBold',
+      bold: 'Nunito-Bold',
+      extraBold: 'Nunito-ExtraBold',
+    },
     sizes: { xs: 12, sm: 14, md: 16, lg: 18, xl: 24, xxl: 30, hero: 48 },
     weights: { regular: '400' as const, medium: '500' as const, semiBold: '600' as const }
   },
-  radii: { sm: 4, md: 8, lg: 12, xl: 16, full: 9999 }
+  radii: { sm: 8, md: 12, lg: 16, xl: 22, full: 9999 }
 };
 
 export const lightTheme = {
   ...darkTheme,
   colors: {
     ...darkTheme.colors,
-    background: '#FFFFFF',
-    surface1: '#F5F5F5',
-    surface2: '#E5E5E5',
-    surface3: '#D4D4D4',
-    primary: '#10B981', // Green (Emerald) for buttons in light mode
-    primaryMuted: 'rgba(16, 185, 129, 0.2)',
-    textPrimary: '#171717',
-    textSecondary: '#525252',
-    textMuted: '#737373',
-    border: '#E5E5E5',
-    borderLight: 'rgba(0,0,0,0.05)',
+    background: '#F6F6F6',
+    surface1: '#FFFFFF',
+    surface2: '#EFEFEF',
+    surface3: '#E3E3E3',
+    primary: '#377A54', // Verde floresta (tom mais escuro para contraste no claro)
+    primaryMuted: 'rgba(55, 122, 84, 0.15)',
+    textPrimary: '#232323',
+    textSecondary: '#6B6B6B',
+    textMuted: '#7A7A7A',
+    border: '#ECECEC',
+    borderLight: 'rgba(0,0,0,0.04)',
+    overlay: 'rgba(35,35,35,0.4)',
   }
 };
 

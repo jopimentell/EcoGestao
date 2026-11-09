@@ -1,7 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import {
   View,
-  Text,
   StyleSheet,
   ScrollView,
   Pressable,
@@ -10,8 +9,10 @@ import {
   Image,
   Dimensions,
 } from 'react-native';
+import { Text } from '../components/Typography';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Feather } from '@expo/vector-icons';
+import { Icon } from '../components/Icon';
+import { Chip, SeverityChip, StatusChip } from '../components/Chip';
 import { useRoute } from '@react-navigation/native';
 import { useReports } from '../context/ReportsContext';
 import { UserAvatar } from '../components/UserAvatar';
@@ -50,7 +51,7 @@ function VoteBtn({ count, onVote, theme }: { count: number; onVote: () => void; 
       ]}
     >
       <Animated.View style={{ transform: [{ scale }] }}>
-        <Feather name="chevron-up" size={16} color={voted ? theme.colors.primary : theme.colors.textMuted} />
+        <Icon name="chevron-up" size={16} color={voted ? theme.colors.primary : theme.colors.textMuted} />
       </Animated.View>
       <Text style={[styles.voteCount, { color: voted ? theme.colors.primary : theme.colors.textMuted }]}>{count}</Text>
     </Pressable>
@@ -66,7 +67,7 @@ function EmptyState({ theme, filter }: { theme: any; filter: string }) {
 
   return (
     <View style={[styles.empty, { backgroundColor: theme.colors.surface1, borderColor: theme.colors.border }]}>
-      <Feather name="message-square" size={40} color={theme.colors.textMuted} style={{ marginBottom: 8 }} />
+      <Icon name="message-square" size={40} color={theme.colors.textMuted} style={{ marginBottom: 8 }} />
       <Text style={[styles.emptyTitle, { color: theme.colors.textPrimary }]}>A comunidade está quieta</Text>
       <Text style={[styles.emptySub, { color: theme.colors.textSecondary }]}>{message}</Text>
     </View>
@@ -83,7 +84,7 @@ function FeedCard({ item, delay, onVote, ticker, theme }: { item: any; delay: nu
   }, [anim, delay]);
 
   return (
-    <Animated.View style={[styles.card, { backgroundColor: theme.colors.surface1, borderColor: theme.colors.border, opacity: anim, transform: [{ translateY: anim.interpolate({ inputRange: [0, 1], outputRange: [20, 0] }) }] }]}>
+    <Animated.View style={[styles.card, { backgroundColor: theme.colors.surface1, opacity: anim, transform: [{ translateY: anim.interpolate({ inputRange: [0, 1], outputRange: [20, 0] }) }] }]}>
       <View style={styles.cardHeader}>
         <View style={styles.userRow}>
           <UserAvatar user={{ name: item.userName, avatar: item.userAvatar, isCustomAvatar: item.isCustomAvatar }} size={36} />
@@ -92,19 +93,20 @@ function FeedCard({ item, delay, onVote, ticker, theme }: { item: any; delay: nu
             <Text style={[styles.userTime, { color: theme.colors.textMuted }]}>{getRelativeTime(item.createdAt)} · {item.street}</Text>
           </View>
         </View>
-        <View style={[styles.statusBadge, { backgroundColor: item.severityColor + '22', borderColor: item.severityColor + '55' }]}>
-          <Text style={[styles.statusText, { color: item.severityColor }]}>{item.status}</Text>
-        </View>
+        <StatusChip status={item.status} />
       </View>
 
-      <View style={[styles.severityStripe, { backgroundColor: item.severityColor }]} />
+      <View style={styles.chipsRow}>
+        <SeverityChip severity={item.severity} />
+        {!!item.neighborhood && <Chip label={item.neighborhood} icon="map-pin" />}
+      </View>
 
       <Pressable onPress={() => setExpanded(!expanded)} style={styles.descContainer}>
         <Text style={[styles.desc, { color: theme.colors.textSecondary }]} numberOfLines={expanded ? undefined : 2}>{item.description}</Text>
         {item.description.length > 80 && (
           <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4, marginBottom: 8 }}>
             <Text style={[styles.readMore, { color: theme.colors.textMuted, marginRight: 4 }]}>{expanded ? 'Ver menos' : 'Ver mais'}</Text>
-            <Feather name={expanded ? 'chevron-up' : 'chevron-down'} size={12} color={theme.colors.textMuted} />
+            <Icon name={expanded ? 'chevron-up' : 'chevron-down'} size={12} color={theme.colors.textMuted} />
           </View>
         )}
       </Pressable>
@@ -120,7 +122,7 @@ function FeedCard({ item, delay, onVote, ticker, theme }: { item: any; delay: nu
       <View style={[styles.actions, { borderTopColor: theme.colors.border }]}>
         <VoteBtn count={item.votes} onVote={onVote} theme={theme} />
         <Pressable style={styles.commentBtn}>
-          <Feather name="message-square" size={16} color={theme.colors.textMuted} />
+          <Icon name="message-square" size={16} color={theme.colors.textMuted} />
           <Text style={[styles.commentCount, { color: theme.colors.textMuted }]}>{item.comments || 0}</Text>
         </Pressable>
         <Pressable style={styles.shareBtn}>
@@ -223,34 +225,32 @@ export const FeedScreen = () => {
 const styles = StyleSheet.create({
   safe:         { flex: 1 },
   stickyHeader: { paddingHorizontal: 24, paddingTop: 16, paddingBottom: 8 },
-  screenTitle:  { fontSize: 24, fontFamily: 'Inter-SemiBold' },
-  screenSub:    { fontSize: 12, fontFamily: 'Inter-Regular', marginTop: 2, marginBottom: 16 },
+  screenTitle:  { fontSize: 26, fontFamily: 'Nunito-ExtraBold' },
+  screenSub:    { fontSize: 12, fontFamily: 'Nunito-Regular', marginTop: 2, marginBottom: 16 },
   filtersRow:   { flexDirection: 'row', gap: 8, paddingBottom: 4 },
   filterChip:   { paddingHorizontal: 16, paddingVertical: 6, borderRadius: 9999, borderWidth: 1 },
-  filterText:   { fontFamily: 'Inter-Medium', fontSize: 12 },
+  filterText:   { fontFamily: 'Nunito-Medium', fontSize: 12 },
   scroll:       { flex: 1 },
   feedContent:  { padding: 24, paddingTop: 16, gap: 16, paddingBottom: 32 },
-  card:         { borderRadius: 16, borderWidth: 1, overflow: 'hidden' },
+  card:         { borderRadius: 16, overflow: 'hidden' },
   cardHeader:   { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', padding: 16, paddingBottom: 0 },
   userRow:      { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  userName:     { fontFamily: 'Inter-Medium', fontSize: 13 },
-  userTime:     { fontSize: 11, fontFamily: 'Inter-Regular', marginTop: 1 },
-  statusBadge:  { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 9999, borderWidth: 1 },
-  statusText:   { fontSize: 10, fontFamily: 'Inter-Medium' },
-  severityStripe: { height: 3, marginTop: 8 },
+  userName:     { fontFamily: 'Nunito-Bold', fontSize: 14 },
+  userTime:     { fontSize: 11, fontFamily: 'Nunito-Regular', marginTop: 1 },
+  chipsRow:     { flexDirection: 'row', flexWrap: 'wrap', gap: 6, paddingHorizontal: 16, paddingTop: 12 },
   descContainer:{ paddingHorizontal: 16, paddingTop: 8 },
-  desc:         { fontFamily: 'Inter-Regular', fontSize: 13, lineHeight: 20 },
-  readMore:     { fontSize: 11, fontFamily: 'Inter-Medium' },
+  desc:         { fontFamily: 'Nunito-Regular', fontSize: 13, lineHeight: 20 },
+  readMore:     { fontSize: 11, fontFamily: 'Nunito-Medium' },
   imageGallery: { paddingHorizontal: 16, paddingBottom: 16, gap: 8, marginTop: 8 },
   galleryImage: { width: width * 0.7, height: 180, borderRadius: 12 },
   actions:      { flexDirection: 'row', alignItems: 'center', borderTopWidth: 1, padding: 8, paddingHorizontal: 16, gap: 16 },
   voteBtn:      { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 9999, borderWidth: 1 },
-  voteCount:    { fontFamily: 'Inter-Medium', fontSize: 12 },
+  voteCount:    { fontFamily: 'Nunito-Medium', fontSize: 12 },
   commentBtn:   { flexDirection: 'row', alignItems: 'center', gap: 5 },
-  commentCount: { fontFamily: 'Inter-Regular', fontSize: 12 },
+  commentCount: { fontFamily: 'Nunito-Regular', fontSize: 12 },
   shareBtn:     { marginLeft: 'auto' },
-  shareText:    { fontFamily: 'Inter-Medium', fontSize: 12 },
-  empty:       { alignItems: 'center', padding: 32, borderRadius: 16, borderWidth: 1, gap: 8, marginTop: 40 },
-  emptyTitle:  { fontFamily: 'Inter-SemiBold', fontSize: 16 },
-  emptySub:    { fontFamily: 'Inter-Regular', fontSize: 13, textAlign: 'center', lineHeight: 20 },
+  shareText:    { fontFamily: 'Nunito-Medium', fontSize: 12 },
+  empty:       { alignItems: 'center', padding: 32, borderRadius: 16, gap: 8, marginTop: 40 },
+  emptyTitle:  { fontFamily: 'Nunito-SemiBold', fontSize: 16 },
+  emptySub:    { fontFamily: 'Nunito-Regular', fontSize: 13, textAlign: 'center', lineHeight: 20 },
 });

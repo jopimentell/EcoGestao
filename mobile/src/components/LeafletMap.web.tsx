@@ -55,7 +55,7 @@ export function LeafletMap({
 
   const mapHtml = useMemo(() => {
     const tileUrl = getTileUrl(isDark);
-    const bgColor = isDark ? '#333333' : '#f0f0f0';
+    const bgColor = isDark ? '#3A3A3A' : '#F6F6F6';
 
     return `<!DOCTYPE html>
 <html>
@@ -70,20 +70,20 @@ export function LeafletMap({
     .leaflet-container { background: ${bgColor} !important; cursor: ${interactive ? 'crosshair' : 'default'}; }
     .custom-pin {
       width: 14px; height: 14px; border-radius: 50%;
-      border: 2px solid ${isDark ? '#000' : '#fff'};
+      border: 2px solid ${isDark ? '#232323' : '#FFFFFF'};
       box-shadow: 0 0 10px rgba(0,0,0,0.3); cursor: pointer;
     }
     .leaflet-popup-content-wrapper {
-      background: ${isDark ? '#1a1a1a' : '#ffffff'}; color: ${isDark ? '#ffffff' : '#000000'};
+      background: ${isDark ? '#2F2F2F' : '#FFFFFF'}; color: ${isDark ? '#FFFFFF' : '#232323'};
       border-radius: 16px; padding: 0; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
     }
     .leaflet-popup-content { margin: 0; width: 220px !important; }
     .popup-container { display: flex; flex-direction: column; }
     .popup-image { width: 100%; height: 120px; object-fit: cover; }
-    .popup-text { padding: 12px; font-family: Inter, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
+    .popup-text { padding: 12px; font-family: Nunito, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
     .popup-title { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
-    .popup-sub { font-size: 11px; color: ${isDark ? '#999' : '#666'}; }
-    .leaflet-popup-tip { background: ${isDark ? '#1a1a1a' : '#ffffff'}; }
+    .popup-sub { font-size: 11px; color: ${isDark ? '#B5B5B5' : '#6B6B6B'}; }
+    .leaflet-popup-tip { background: ${isDark ? '#2F2F2F' : '#FFFFFF'}; }
     .leaflet-popup-close-button { display: none; }
   </style>
 </head>

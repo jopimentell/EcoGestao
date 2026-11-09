@@ -1,42 +1,38 @@
 import React, { useRef, useEffect, useState } from 'react';
 import {
   View,
-  Text,
   StyleSheet,
   ScrollView,
   Pressable,
   Animated,
   Easing,
 } from 'react-native';
+import { Text } from '../components/Typography';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Feather } from '@expo/vector-icons';
+import { Icon } from '../components/Icon';
+import { StatusChip } from '../components/Chip';
 import { useAuth } from '../context/AuthContext';
 import { useReports } from '../context/ReportsContext';
 import { UserAvatar } from '../components/UserAvatar';
 import { getRelativeTime } from '../utils/date';
 import { useTheme } from '../context/ThemeContext';
+import { semanticColors, severityColors, statusColors } from '../theme/designSystem';
 
 // Função auxiliar para cor da severidade
 const getSeverityColor = (severity: string): string => {
   switch (severity) {
-    case 'Baixa': return '#22C55E';
-    case 'Média': return '#F97316';
-    case 'Alta': return '#EF4444';
-    case 'Crítica': return '#A855F7';
-    default: return '#F97316';
+    case 'Baixa': return severityColors.Baixa;
+    case 'Média': return severityColors['Média'];
+    case 'Alta': return severityColors.Alta;
+    case 'Crítica': return severityColors['Crítica'];
+    default: return severityColors['Média'];
   }
 };
 
 // Função auxiliar para status
 const getStatusColor = (status: string): string => {
-  switch (status) {
-    case 'Resolvido': return '#22C55E';
-    case 'Aprovado': return '#6366F1';
-    case 'Em análise': return '#F97316';
-    case 'Rejeitado': return '#EF4444';
-    default: return '#64748B';
-  }
+  return statusColors[status] ?? semanticColors.neutral;
 };
 
 // Níveis baseados na quantidade de reports
@@ -142,7 +138,7 @@ export const ProfileScreen = () => {
               <Text style={[styles.heroName, { color: theme.colors.textPrimary }]}>{user.name}</Text>
               <Text style={[styles.heroHandle, { color: theme.colors.textMuted }]}>{user.handle || user.email}</Text>
               <View style={[styles.rankBadge, { backgroundColor: theme.colors.primary + '22', borderColor: theme.colors.primary + '55' }]}>
-                <Feather name="star" size={12} color={theme.colors.primary} style={{ marginRight: 4 }} />
+                <Icon name="star" size={12} color={theme.colors.primary} style={{ marginRight: 4 }} />
                 <Text style={[styles.rankText, { color: theme.colors.primary }]}>{levelInfo.name}</Text>
               </View>
             </View>
@@ -179,7 +175,7 @@ export const ProfileScreen = () => {
                     <Text style={[styles.historyStreet, { color: theme.colors.textPrimary }]}>{r.street}</Text>
                     <Text style={[styles.historyTime, { color: theme.colors.textMuted }]}>{getRelativeTime(r.createdAt)}</Text>
                   </View>
-                  <Text style={[styles.historyStatus, { color: getStatusColor(r.status) }]}>{r.status}</Text>
+                  <StatusChip status={r.status} />
                 </View>
               ))}
             </View>
@@ -191,7 +187,7 @@ export const ProfileScreen = () => {
             <Text style={[styles.sectionTitle, { color: theme.colors.textPrimary }]}>Progresso para próximo nível</Text>
             <View style={[styles.progressBg, { backgroundColor: theme.colors.surface2 }]}>
               <LinearGradient
-                colors={[theme.colors.primary, isDark ? '#facc15' : '#4ade80']}
+                colors={[theme.colors.primary, isDark ? '#8BA33B' : '#459C6A']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={[styles.progressFill, { width: `${levelInfo.progressPercent}%` }]}
@@ -211,12 +207,12 @@ export const ProfileScreen = () => {
               {dynamicAchievements.map((a) => (
                 <View key={a.id} style={[styles.achievBadge, !a.done && { backgroundColor: theme.colors.surface2, borderColor: theme.colors.border }, a.done && { backgroundColor: theme.colors.primary + '15', borderColor: theme.colors.primary + '44' }]}>
                   <View style={[styles.achievIconWrapper, !a.done && { opacity: 0.3 }]}>
-                    <Feather name={a.icon as any} size={24} color={a.done ? theme.colors.primary : theme.colors.textMuted} />
+                    <Icon name={a.icon as any} size={24} color={a.done ? theme.colors.primary : theme.colors.textMuted} />
                   </View>
                   <Text style={[styles.achievLabel, { color: a.done ? theme.colors.textSecondary : theme.colors.textMuted }]}>{a.label}</Text>
                   {!a.done && (
                     <View style={styles.lockIcon}>
-                      <Feather name="lock" size={10} color={theme.colors.textMuted} />
+                      <Icon name="lock" size={10} color={theme.colors.textMuted} />
                     </View>
                   )}
                 </View>
@@ -234,13 +230,13 @@ export const ProfileScreen = () => {
                 style={[styles.menuRow, i < MENU_ITEMS.length - 1 && { borderBottomWidth: 1, borderBottomColor: theme.colors.border }]}
               >
                 <View style={styles.menuIconWrapper}>
-                  <Feather name={item.icon as any} size={20} color={item.danger ? '#EF4444' : theme.colors.primary} />
+                  <Icon name={item.icon as any} size={20} color={item.danger ? semanticColors.danger : theme.colors.primary} />
                 </View>
                 <View style={{ flex: 1 }}>
-                  <Text style={[styles.menuLabel, { color: item.danger ? '#EF4444' : theme.colors.textPrimary }]}>{item.label}</Text>
+                  <Text style={[styles.menuLabel, { color: item.danger ? semanticColors.danger : theme.colors.textPrimary }]}>{item.label}</Text>
                   <Text style={[styles.menuSub, { color: theme.colors.textMuted }]}>{item.sub}</Text>
                 </View>
-                <Feather name="chevron-right" size={20} color={theme.colors.textMuted} />
+                <Icon name="chevron-right" size={20} color={theme.colors.textMuted} />
               </Pressable>
             ))}
           </View>
@@ -248,7 +244,7 @@ export const ProfileScreen = () => {
 
         <View style={styles.footerRow}>
           <Text style={[styles.versionText, { color: theme.colors.textMuted }]}>EcoGestão v2.0 · Feito com </Text>
-          <Feather name="heart" size={10} color="#EF4444" />
+          <Icon name="heart" size={10} color={semanticColors.danger} />
           <Text style={[styles.versionText, { color: theme.colors.textMuted }]}> em Caxias</Text>
         </View>
 
@@ -263,37 +259,37 @@ const styles = StyleSheet.create({
   heroBg:    { ...StyleSheet.absoluteFillObject },
   heroContent: { flexDirection: 'row', alignItems: 'center', gap: 16, marginBottom: 4, borderRadius: 16, padding: 24, borderWidth: 1 },
   heroInfo:  { flex: 1, gap: 4 },
-  heroName:  { fontSize: 18, fontFamily: 'Inter-SemiBold' },
-  heroHandle:{ fontSize: 12, fontFamily: 'Inter-Regular' },
+  heroName:  { fontSize: 18, fontFamily: 'Nunito-SemiBold' },
+  heroHandle:{ fontSize: 12, fontFamily: 'Nunito-Regular' },
   rankBadge: { flexDirection: 'row', alignItems: 'center', borderRadius: 9999, paddingHorizontal: 10, paddingVertical: 3, alignSelf: 'flex-start', borderWidth: 1, marginTop: 2 },
-  rankText:  { fontSize: 11, fontFamily: 'Inter-Medium' },
+  rankText:  { fontSize: 11, fontFamily: 'Nunito-Medium' },
   statsRow:   { flexDirection: 'row', borderRadius: 16, borderWidth: 1, overflow: 'hidden' },
   statBox:    { flex: 1, alignItems: 'center', paddingVertical: 16 },
-  statValue:  { fontSize: 22, fontFamily: 'Inter-SemiBold' },
-  statLabel:  { fontSize: 11, fontFamily: 'Inter-Regular', marginTop: 2 },
+  statValue:  { fontSize: 22, fontFamily: 'Nunito-SemiBold' },
+  statLabel:  { fontSize: 11, fontFamily: 'Nunito-Regular', marginTop: 2 },
   statDivider:{ width: 1 },
   sectionCard:  { borderRadius: 16, padding: 24, borderWidth: 1, gap: 16 },
-  sectionTitle: { fontSize: 14, fontFamily: 'Inter-SemiBold' },
+  sectionTitle: { fontSize: 14, fontFamily: 'Nunito-SemiBold' },
   
   historyRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8 },
   historyDot: { width: 8, height: 8, borderRadius: 4 },
-  historyStreet: { fontSize: 13, fontFamily: 'Inter-Medium' },
+  historyStreet: { fontSize: 13, fontFamily: 'Nunito-Medium' },
   historyTime: { fontSize: 11 },
-  historyStatus: { fontSize: 10, fontFamily: 'Inter-SemiBold' },
+  historyStatus: { fontSize: 10, fontFamily: 'Nunito-SemiBold' },
 
   progressBg:     { height: 8, borderRadius: 4, overflow: 'hidden' },
   progressFill:   { height: '100%', borderRadius: 4 },
   progressLabels: { flexDirection: 'row', justifyContent: 'space-between' },
-  progressLabel:  { fontSize: 11, fontFamily: 'Inter-Regular' },
+  progressLabel:  { fontSize: 11, fontFamily: 'Nunito-Regular' },
   achievGrid:  { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   achievBadge: { width: '30%', alignItems: 'center', borderRadius: 12, borderWidth: 1, padding: 8, gap: 4, position: 'relative' },
   achievIconWrapper: { height: 32, justifyContent: 'center', alignItems: 'center' },
-  achievLabel: { fontSize: 10, fontFamily: 'Inter-Medium', textAlign: 'center' },
+  achievLabel: { fontSize: 10, fontFamily: 'Nunito-Medium', textAlign: 'center' },
   lockIcon:    { position: 'absolute', top: 4, right: 4 },
   menuRow:       { flexDirection: 'row', alignItems: 'center', paddingVertical: 12, gap: 16 },
   menuIconWrapper: { width: 32, alignItems: 'center' },
-  menuLabel:     { fontFamily: 'Inter-Medium', fontSize: 14 },
-  menuSub:       { fontSize: 11, fontFamily: 'Inter-Regular', marginTop: 1 },
-  versionText: { textAlign: 'center', fontSize: 11, fontFamily: 'Inter-Regular' },
+  menuLabel:     { fontFamily: 'Nunito-Medium', fontSize: 14 },
+  menuSub:       { fontSize: 11, fontFamily: 'Nunito-Regular', marginTop: 1 },
+  versionText: { textAlign: 'center', fontSize: 11, fontFamily: 'Nunito-Regular' },
   footerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 16 },
 });

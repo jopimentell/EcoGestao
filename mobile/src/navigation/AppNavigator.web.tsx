@@ -1,10 +1,11 @@
 // mobile/src/navigation/AppNavigator.web.tsx
 // Navegação Web: sidebar à esquerda no desktop; abaixo do breakpoint usa o AppNavigator mobile original.
 import React from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { Text } from '../components/Typography';
 import { createBottomTabNavigator, type BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Feather } from '@expo/vector-icons';
+import { Icon, type IconName } from '../components/Icon';
 import { HomeScreen } from '../screens/HomeScreen';
 import { ReportScreen } from '../screens/ReportScreen';
 import { FeedScreen } from '../screens/FeedScreen';
@@ -68,9 +69,8 @@ function ProfileStack() {
   );
 }
 
-type FeatherName = keyof typeof Feather.glyphMap;
 
-const NAV_ICONS: Record<string, FeatherName> = {
+const NAV_ICONS: Record<string, IconName> = {
   Início: 'home',
   Mapa: 'navigation',
   Comunidade: 'message-square',
@@ -78,7 +78,7 @@ const NAV_ICONS: Record<string, FeatherName> = {
 };
 
 /* ---------- Item da sidebar ---------- */
-function NavItem({ label, icon, active, onPress }: { label: string; icon: FeatherName; active: boolean; onPress: () => void }) {
+function NavItem({ label, icon, active, onPress }: { label: string; icon: IconName; active: boolean; onPress: () => void }) {
   const { theme } = useTheme();
   return (
     <Pressable
@@ -90,7 +90,7 @@ function NavItem({ label, icon, active, onPress }: { label: string; icon: Feathe
         active && { backgroundColor: theme.colors.primary + tint.soft },
       ]}
     >
-      <Feather name={icon} size={iconSize.sm} color={active ? theme.colors.primary : theme.colors.textSecondary} />
+      <Icon name={icon} size={iconSize.sm} color={active ? theme.colors.primary : theme.colors.textSecondary} />
       <Text style={[styles.navLabel, { color: active ? theme.colors.primary : theme.colors.textSecondary }, active && styles.navLabelActive]}>
         {label}
       </Text>
@@ -121,7 +121,7 @@ function Sidebar({ state, navigation }: BottomTabBarProps) {
       {/* Marca */}
       <View style={styles.brand}>
         <View style={[styles.brandIcon, { backgroundColor: theme.colors.primary + tint.soft }]}>
-          <Feather name="map-pin" size={iconSize.sm} color={theme.colors.primary} />
+          <Icon name="map-pin" size={iconSize.sm} color={theme.colors.primary} />
         </View>
         <View>
           <Text style={[styles.brandTitle, { color: theme.colors.textPrimary }]}>EcoGestão</Text>
@@ -138,7 +138,7 @@ function Sidebar({ state, navigation }: BottomTabBarProps) {
           (hovered || focused.name === 'Reportar') && styles.ctaHover,
         ]}
       >
-        <Feather name="plus" size={iconSize.sm} color={onAccentColor} />
+        <Icon name="plus" size={iconSize.sm} color={onAccentColor} />
         <Text style={styles.ctaText}>Reportar ocorrência</Text>
       </Pressable>
 
@@ -188,7 +188,7 @@ function Sidebar({ state, navigation }: BottomTabBarProps) {
             <Text style={[styles.userEmail, { color: theme.colors.textMuted }]} numberOfLines={1}>{user.email}</Text>
           </View>
           <Pressable onPress={logout} accessibilityLabel="Sair" style={styles.logoutBtn}>
-            <Feather name="log-out" size={iconSize.sm} color={theme.colors.textMuted} />
+            <Icon name="log-out" size={iconSize.sm} color={theme.colors.textMuted} />
           </Pressable>
         </View>
       )}

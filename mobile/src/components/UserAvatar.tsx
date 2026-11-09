@@ -1,12 +1,9 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet } from 'react-native';
+import { View, Image, StyleSheet } from 'react-native';
+import { Text } from './Typography';
 import { useTheme } from '../context/ThemeContext';
 import { theme } from '../theme/tokens';
-
-const AVATAR_COLORS: Record<string, string> = {
-  orange: '#F97316', indigo: '#6366F1', emerald: '#10B981',
-  rose: '#F43F5E', sky: '#0EA5E9', violet: '#8B5CF6',
-};
+import { avatarColors, defaultAvatarColor, onPastelColor } from '../theme/designSystem';
 
 interface UserAvatarProps {
   user: {
@@ -20,7 +17,7 @@ interface UserAvatarProps {
 export function UserAvatar({ user, size = 42 }: UserAvatarProps) {
   const { theme } = useTheme();
   const initials = user.name.trim().split(' ').map(w => w[0]).filter(Boolean).slice(0, 2).join('').toUpperCase() || 'CX';
-  const bg = user.isCustomAvatar ? 'transparent' : (AVATAR_COLORS[user.avatar] ?? '#F97316');
+  const bg = user.isCustomAvatar ? 'transparent' : (avatarColors[user.avatar] ?? defaultAvatarColor);
 
   return (
     <View style={[styles.avatarCircle, { width: size, height: size, borderRadius: size / 2, backgroundColor: bg }]}>
@@ -40,7 +37,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   avatarText: {
-    color: '#FFF',
+    color: onPastelColor,
     textAlign: 'center',
     textAlignVertical: 'center',
     includeFontPadding: false,

@@ -1,247 +1,256 @@
 import React, { useEffect, useRef } from 'react';
 import {
   View,
-  Text,
   StyleSheet,
   SafeAreaView,
   Animated,
   Easing,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { theme as staticTheme } from '../theme/tokens';
+import { Text } from '../components/Typography';
 import { BeamButton } from '../components/BeamButton';
+import { Icon, type IconName } from '../components/Icon';
 import { useTheme } from '../context/ThemeContext';
+import {
+  fontSize, fontWeight, onPastelColor, pastelColors, radius, spacing,
+} from '../theme/designSystem';
 
-// ─── Animated fade-in helper ──────────────────────────────────────────────────
+// ─── Animações ────────────────────────────────────────────────────────────────
 function useFadeInUp(delay: number, duration = 600) {
   const opacity = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(24)).current;
 
   useEffect(() => {
     Animated.parallel([
-      Animated.timing(opacity, {
-        toValue: 1,
-        duration,
-        delay,
-        easing: Easing.out(Easing.quad),
-        useNativeDriver: true,
-      }),
-      Animated.timing(translateY, {
-        toValue: 0,
-        duration,
-        delay,
-        easing: Easing.out(Easing.quad),
-        useNativeDriver: true,
-      }),
+      Animated.timing(opacity, { toValue: 1, duration, delay, easing: Easing.out(Easing.quad), useNativeDriver: true }),
+      Animated.timing(translateY, { toValue: 0, duration, delay, easing: Easing.out(Easing.quad), useNativeDriver: true }),
     ]).start();
   }, [opacity, translateY, delay, duration]);
 
   return { opacity, transform: [{ translateY }] };
 }
 
-// ─── Grid line individual component ───────────────────────────────────────────
+function useFloat(delay: number) {
+  const y = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(y, { toValue: -6, duration: 1600, delay, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+        Animated.timing(y, { toValue: 0, duration: 1600, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+      ]),
+    ).start();
+  }, [y, delay]);
+  return { transform: [{ translateY: y }] };
+}
+
+// ─── Ícone flutuante em círculo pastel ──────────────────────────────────────
+function FloatingBubble({ icon, bg, style, delay }: {
+  icon: IconName; bg: string; style: object; delay: number;
+}) {
+  const float = useFloat(delay);
+  return (
+    <Animated.View style={[styles.bubble, { backgroundColor: bg }, style, float]}>
+      <Icon name={icon} size={24} color={onPastelColor} />
+    </Animated.View>
+  );
+}
+
+const CIRCLE = 280;
+
 export const WelcomeScreen = ({ onLoginPress, onRegisterPress }: { onLoginPress: () => void, onRegisterPress: () => void }) => {
   const { theme, isDark } = useTheme();
-  const badgeAnim  = useFadeInUp(150);
-  const title1Anim = useFadeInUp(300);
-  const title2Anim = useFadeInUp(420);
-  const subAnim    = useFadeInUp(540);
-  const btnsAnim   = useFadeInUp(660);
+  const heroAnim  = useFadeInUp(100);
+  const sheetAnim = useFadeInUp(300);
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.background }]}>
       <View style={styles.container}>
 
-        {/* Dynamic gradient background */}
-        <LinearGradient
-          colors={[theme.colors.surface1, theme.colors.background]}
-          style={StyleSheet.absoluteFillObject}
-        />
-
-        {/* Subtle radial glow at top */}
-        <LinearGradient
-          colors={[isDark ? 'rgba(249,115,22,0.08)' : 'rgba(16,185,129,0.08)', 'transparent']}
-          style={styles.glowTop}
-        />
-
-        {/* Vertical grid lines */}
-        <View style={styles.gridContainer} pointerEvents="none">
-          {[0, 1, 2, 3, 4].map((i) => (
-            <GridLine key={i} delay={80 * i} theme={theme} />
-          ))}
-        </View>
-
-        {/* Main content */}
-        <View style={styles.content}>
-
-          {/* Badge */}
-          <Animated.View style={[styles.badgeWrapper, badgeAnim]}>
-            <View style={[styles.badge, { backgroundColor: theme.colors.primary + '15', borderColor: theme.colors.primary + '44' }]}>
-              <View style={[styles.badgeDot, { backgroundColor: theme.colors.primary }]} />
-              <Text style={[styles.badgeText, { color: theme.colors.primary }]}>EcoGestão v2.0</Text>
+        {/* Ilustração: círculo + cartão central + ícones flutuantes */}
+        <Animated.View style={[styles.hero, heroAnim]}>
+          <View
+            style={[
+              styles.circle,
+              { backgroundColor: isDark ? theme.colors.primary : pastelColors.mint },
+            ]}
+          />
+          <View style={[styles.card, { backgroundColor: theme.colors.surface1 }]}>
+            <View style={[styles.cardIcon, { backgroundColor: theme.colors.primaryMuted }]}>
+              <Icon name="map-pin" size={30} color={theme.colors.primary} weight="fill" />
             </View>
-          </Animated.View>
+            <Text style={[styles.cardTitle, { color: theme.colors.textPrimary }]}>Descarte irregular</Text>
+            <Text style={[styles.cardSub, { color: theme.colors.textMuted }]}>Bairro Centro · agora</Text>
+            <View style={styles.chipRow}>
+              <View style={[styles.chip, { backgroundColor: pastelColors.lime }]}>
+                <Text style={styles.chipText}>Entulho</Text>
+                <Icon name="recycle" size={12} color={onPastelColor} />
+              </View>
+              <View style={[styles.chip, { backgroundColor: pastelColors.peach }]}>
+                <Text style={styles.chipText}>Em análise</Text>
+                <Icon name="clock" size={12} color={onPastelColor} />
+              </View>
+            </View>
+          </View>
 
-          {/* Hero title */}
-          <Animated.Text style={[styles.title, { color: theme.colors.textPrimary }, title1Anim]}>
-            Ajudando a construir
-          </Animated.Text>
-          <Animated.Text style={[styles.title, styles.titleAccent, { color: theme.colors.primary }, title2Anim]}>
-            ruas melhores.
-          </Animated.Text>
+          <FloatingBubble icon="recycle" bg={pastelColors.lime} style={styles.bubbleTopLeft} delay={0} />
+          <FloatingBubble icon="globe" bg={pastelColors.lavender} style={styles.bubbleTopRight} delay={400} />
+          <FloatingBubble icon="drop" bg={pastelColors.sky} style={styles.bubbleBottomLeft} delay={800} />
+          <FloatingBubble icon="leaf" bg={pastelColors.peach} style={styles.bubbleBottomRight} delay={1200} />
+        </Animated.View>
 
-          {/* Subtitle */}
-          <Animated.Text style={[styles.subtitle, { color: theme.colors.textSecondary }, subAnim]}>
-            Reporte Denúncias, visualize o mapa e interaja com a sua comunidade em Caxias.
-          </Animated.Text>
+        {/* Painel inferior */}
+        <Animated.View style={[styles.sheet, { backgroundColor: theme.colors.surface1 }, sheetAnim]}>
+          <View style={styles.dots}>
+            <View style={[styles.dot, { backgroundColor: theme.colors.surface3 }]} />
+            <View style={[styles.dot, styles.dotActive, { backgroundColor: theme.colors.primary }]} />
+            <View style={[styles.dot, { backgroundColor: theme.colors.surface3 }]} />
+          </View>
 
-          {/* Divider line */}
-          <Animated.View style={[styles.divider, { backgroundColor: theme.colors.primary + '44' }, subAnim]} />
+          <Text style={[styles.title, { color: theme.colors.textPrimary }]}>
+            Sua cidade mais limpa
+          </Text>
+          <Text style={[styles.subtitle, { color: theme.colors.textSecondary }]}>
+            Registre descartes irregulares, descubra onde descartar e acompanhe a sua comunidade em Caxias.
+          </Text>
 
-          {/* CTA buttons */}
-          <Animated.View style={[styles.actionContainer, btnsAnim]}>
-            <BeamButton
-              title="Entrar com conta Caxias"
-              isPrimary
-              onPress={onLoginPress}
-              style={styles.btn}
-            />
-            <BeamButton
-              title="Se registrar"
-              onPress={onRegisterPress}
-              style={styles.btn}
-            />
-          </Animated.View>
+          <View style={styles.actions}>
+            <BeamButton title="Entrar" iconRight="arrow-right" isPrimary onPress={onLoginPress} style={styles.btn} />
+            <BeamButton title="Criar conta" onPress={onRegisterPress} style={styles.btn} />
+          </View>
 
-          {/* Footer note */}
-          <Animated.Text style={[styles.footerNote, { color: theme.colors.textMuted }, btnsAnim]}>
+          <Text style={[styles.footerNote, { color: theme.colors.textMuted }]}>
             Ao entrar, você concorda com os termos de uso da plataforma.
-          </Animated.Text>
-        </View>
+          </Text>
+        </Animated.View>
       </View>
     </SafeAreaView>
   );
 };
 
-function GridLine({ delay, theme }: { delay: number; theme: any }) {
-  const opacity = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    Animated.timing(opacity, {
-      toValue: 1,
-      duration: 1200,
-      delay,
-      easing: Easing.out(Easing.quad),
-      useNativeDriver: true,
-    }).start();
-  }, [opacity, delay]);
-
-  return <Animated.View style={[styles.gridLine, { opacity, backgroundColor: theme.colors.textPrimary }]} />;
-}
-
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: staticTheme.colors.background,
   },
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  glowTop: {
-    position: 'absolute',
-    top: -100,
-    left: '10%',
-    width: '80%',
-    height: 400,
-    borderRadius: 200,
-  },
-  gridContainer: {
-    ...StyleSheet.absoluteFillObject,
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    opacity: 0.12,
-  },
-  gridLine: {
-    width: 1,
-    height: '100%',
-    backgroundColor: staticTheme.colors.textPrimary,
-  },
-  content: {
-    flex: 1,
     width: '100%',
-    maxWidth: 420,
+    maxWidth: 480,
+    alignSelf: 'center',
+    justifyContent: 'flex-end',
+  },
+  hero: {
+    flex: 1,
+    minHeight: CIRCLE + 40,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: staticTheme.spacing.lg,
-    zIndex: 10,
   },
-  badgeWrapper: {
-    marginBottom: staticTheme.spacing.xl,
+  circle: {
+    position: 'absolute',
+    width: CIRCLE,
+    height: CIRCLE,
+    borderRadius: CIRCLE / 2,
   },
-  badge: {
+  card: {
+    width: 200,
+    borderRadius: radius.lg,
+    padding: spacing.lg,
+    alignItems: 'center',
+    shadowColor: '#232323',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.1,
+    shadowRadius: 18,
+    elevation: 4,
+  },
+  cardIcon: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: spacing.md,
+  },
+  cardTitle: {
+    fontSize: fontSize.md,
+    fontWeight: fontWeight.bold,
+  },
+  cardSub: {
+    fontSize: fontSize.xs,
+    marginTop: spacing.xxs,
+    marginBottom: spacing.md,
+  },
+  chipRow: {
+    flexDirection: 'row',
+    gap: spacing.xs,
+  },
+  chip: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(249,115,22,0.12)',
-    paddingHorizontal: staticTheme.spacing.md,
-    paddingVertical: staticTheme.spacing.xs,
-    borderRadius: staticTheme.radii.full,
-    borderWidth: 1,
-    borderColor: 'rgba(249,115,22,0.35)',
+    gap: spacing.xs,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 3,
+    borderRadius: radius.pill,
   },
-  badgeDot: {
-    width: 7,
-    height: 7,
-    borderRadius: 4,
-    backgroundColor: staticTheme.colors.primary,
-    marginRight: staticTheme.spacing.sm,
+  chipText: {
+    fontSize: fontSize.xs,
+    fontWeight: fontWeight.semibold,
+    color: onPastelColor,
   },
-  badgeText: {
-    color: staticTheme.colors.primary,
-    fontSize: staticTheme.typography.sizes.xs,
-    fontFamily: staticTheme.typography.fontFamily.medium,
-    letterSpacing: 0.5,
+  bubble: {
+    position: 'absolute',
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  bubbleTopLeft:     { top: '14%', left: '12%' },
+  bubbleTopRight:    { top: '10%', right: '14%' },
+  bubbleBottomLeft:  { bottom: '14%', left: '16%' },
+  bubbleBottomRight: { bottom: '18%', right: '10%' },
+  sheet: {
+    borderTopLeftRadius: radius.xl,
+    borderTopRightRadius: radius.xl,
+    paddingHorizontal: spacing.xxl,
+    paddingTop: spacing.xl,
+    paddingBottom: spacing.xxl,
+    alignItems: 'center',
+  },
+  dots: {
+    flexDirection: 'row',
+    gap: spacing.xs,
+    marginBottom: spacing.xl,
+  },
+  dot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+  },
+  dotActive: {
+    width: 18,
   },
   title: {
-    fontSize: 36,
-    fontFamily: staticTheme.typography.fontFamily.semiBold,
-    color: staticTheme.colors.textPrimary,
+    fontSize: fontSize.xxl,
+    fontWeight: fontWeight.extrabold,
     textAlign: 'center',
-    lineHeight: 44,
-    letterSpacing: -0.8,
-  },
-  titleAccent: {
-    color: staticTheme.colors.primary,
-    marginBottom: staticTheme.spacing.lg,
+    letterSpacing: -0.4,
   },
   subtitle: {
-    fontSize: staticTheme.typography.sizes.md,
-    fontFamily: staticTheme.typography.fontFamily.regular,
-    color: staticTheme.colors.textSecondary,
+    fontSize: fontSize.md,
     textAlign: 'center',
-    lineHeight: 24,
-    maxWidth: '88%',
+    lineHeight: 22,
+    marginTop: spacing.sm,
+    maxWidth: 340,
   },
-  divider: {
-    width: 40,
-    height: 2,
-    borderRadius: 1,
-    backgroundColor: 'rgba(249,115,22,0.4)',
-    marginVertical: staticTheme.spacing.xl,
-  },
-  actionContainer: {
+  actions: {
     width: '100%',
-    gap: staticTheme.spacing.md,
+    gap: spacing.md,
+    marginTop: spacing.xxl,
   },
   btn: {
     width: '100%',
   },
   footerNote: {
-    marginTop: staticTheme.spacing.lg,
-    fontSize: 11,
-    color: staticTheme.colors.textMuted,
+    marginTop: spacing.lg,
+    fontSize: fontSize.xs,
     textAlign: 'center',
-    fontFamily: staticTheme.typography.fontFamily.regular,
   },
 });

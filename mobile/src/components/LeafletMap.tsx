@@ -36,7 +36,7 @@ export function LeafletMap({
   
   const mapHtml = useMemo(() => {
     const tileUrl = getTileUrl(isDark);
-    const bgColor = isDark ? '#333333' : '#f0f0f0';
+    const bgColor = isDark ? '#3A3A3A' : '#F6F6F6';
 
     return `
       <!DOCTYPE html>
@@ -58,13 +58,13 @@ export function LeafletMap({
             width: 14px;
             height: 14px;
             border-radius: 50%;
-            border: 2px solid ${isDark ? '#000' : '#fff'};
+            border: 2px solid ${isDark ? '#232323' : '#FFFFFF'};
             box-shadow: 0 0 10px rgba(0,0,0,0.3);
           }
           /* Custom Popup Styling */
           .leaflet-popup-content-wrapper {
-            background: ${isDark ? '#1a1a1a' : '#ffffff'};
-            color: ${isDark ? '#ffffff' : '#000000'};
+            background: ${isDark ? '#2F2F2F' : '#FFFFFF'};
+            color: ${isDark ? '#FFFFFF' : '#232323'};
             border-radius: 16px;
             padding: 0;
             overflow: hidden;
@@ -94,11 +94,11 @@ export function LeafletMap({
           }
           .popup-sub {
             font-size: 11px;
-            color: ${isDark ? '#999' : '#666'};
+            color: ${isDark ? '#B5B5B5' : '#6B6B6B'};
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
           }
           .leaflet-popup-tip {
-            background: ${isDark ? '#1a1a1a' : '#ffffff'};
+            background: ${isDark ? '#2F2F2F' : '#FFFFFF'};
           }
           .leaflet-popup-close-button {
             display: none;
@@ -188,7 +188,7 @@ export function LeafletMap({
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: isDark ? '#0a0a0a' : '#f0f0f0' }]}>
+    <View style={[styles.container, { backgroundColor: isDark ? '#232323' : '#F6F6F6' }]}>
       <WebView
         originWhitelist={['*']}
         source={{ html: mapHtml }}
@@ -202,7 +202,7 @@ export function LeafletMap({
         mixedContentMode="always"
         startInLoadingState
         renderLoading={() => (
-          <View style={[styles.loading, { backgroundColor: isDark ? '#0a0a0a' : '#f0f0f0' }]}>
+          <View style={[styles.loading, { backgroundColor: isDark ? '#232323' : '#F6F6F6' }]}>
             <ActivityIndicator color={theme.colors.primary} size="large" />
           </View>
         )}

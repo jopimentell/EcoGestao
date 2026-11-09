@@ -2,36 +2,36 @@
 import React, { useState } from 'react';
 import {
   View,
-  Text,
   StyleSheet,
   TouchableOpacity,
-  TextInput,
   ScrollView,
   Modal,
   Pressable,
 } from 'react-native';
+import { Text, TextInput } from '../components/Typography';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Feather } from '@expo/vector-icons';
+import { Icon } from '../components/Icon';
 import { useNavigation } from '@react-navigation/native';
 import { useReports } from '../context/ReportsContext';
 import { useTheme } from '../context/ThemeContext';
 import { LeafletMap } from '../components/LeafletMap';
 import { theme as staticTheme } from '../theme/tokens';
+import { severityColors } from '../theme/designSystem';
 
 const SEVERITIES = [
-  { label: 'Baixa', color: '#22C55E' },
-  { label: 'Média', color: '#F97316' },
-  { label: 'Alta', color: '#EF4444' },
-  { label: 'Crítica', color: '#A855F7' },
+  { label: 'Baixa', color: severityColors.Baixa },
+  { label: 'Média', color: severityColors['Média'] },
+  { label: 'Alta', color: severityColors.Alta },
+  { label: 'Crítica', color: severityColors['Crítica'] },
 ];
 
 const getSeverityColor = (severity: string): string => {
   switch (severity) {
-    case 'Baixa': return '#22C55E';
-    case 'Média': return '#F97316';
-    case 'Alta': return '#EF4444';
-    case 'Crítica': return '#A855F7';
-    default: return '#F97316';
+    case 'Baixa': return severityColors.Baixa;
+    case 'Média': return severityColors['Média'];
+    case 'Alta': return severityColors.Alta;
+    case 'Crítica': return severityColors['Crítica'];
+    default: return severityColors['Média'];
   }
 };
 
@@ -91,7 +91,7 @@ export function FullMapScreen() {
       {/* Header */}
       <View style={[styles.header, { borderBottomColor: theme.colors.border }]}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Feather name="arrow-left" size={24} color={theme.colors.textPrimary} />
+          <Icon name="arrow-left" size={24} color={theme.colors.textPrimary} />
         </TouchableOpacity>
         <Text style={[styles.title, { color: theme.colors.textPrimary }]}>Mapa de Denúncias</Text>
         <View style={{ width: 40 }} />
@@ -100,7 +100,7 @@ export function FullMapScreen() {
       {/* Search Bar */}
       <View style={styles.searchContainer}>
         <View style={[styles.searchBox, { backgroundColor: theme.colors.surface1, borderColor: theme.colors.border }]}>
-          <Feather name="search" size={18} color={theme.colors.textMuted} />
+          <Icon name="search" size={18} color={theme.colors.textMuted} />
           <TextInput 
             style={[styles.searchInput, { color: theme.colors.textPrimary }]}
             placeholder="Buscar ruas ou bairros..."
@@ -110,7 +110,7 @@ export function FullMapScreen() {
           />
           {searchQuery !== '' && (
             <TouchableOpacity onPress={() => setSearchQuery('')}>
-              <Feather name="x" size={18} color={theme.colors.textMuted} />
+              <Icon name="x" size={18} color={theme.colors.textMuted} />
             </TouchableOpacity>
           )}
         </View>
@@ -159,7 +159,7 @@ export function FullMapScreen() {
       {/* Floating Stats */}
       <View style={styles.statsContainer}>
         <View style={[styles.statsBadge, { backgroundColor: theme.colors.surface1, borderColor: theme.colors.border }]}>
-          <Feather name="map-pin" size={14} color={theme.colors.primary} />
+          <Icon name="map-pin" size={14} color={theme.colors.primary} />
           <Text style={[styles.statsText, { color: theme.colors.textPrimary }]}>
             {markers.length} Denúncia{markers.length !== 1 ? 's' : ''} encontrado{markers.length !== 1 ? 's' : ''}
           </Text>
@@ -182,7 +182,7 @@ export function FullMapScreen() {
                     <Text style={[styles.popupSeverityText, { color: selectedReport.severityColor }]}>{selectedReport.severity}</Text>
                   </View>
                   <TouchableOpacity onPress={() => setShowPopup(false)}>
-                    <Feather name="x" size={20} color={theme.colors.textMuted} />
+                    <Icon name="x" size={20} color={theme.colors.textMuted} />
                   </TouchableOpacity>
                 </View>
                 
@@ -194,9 +194,9 @@ export function FullMapScreen() {
                 
                 <View style={styles.popupFooter}>
                   <View style={styles.popupStats}>
-                    <Feather name="thumbs-up" size={14} color={theme.colors.textMuted} />
+                    <Icon name="thumbs-up" size={14} color={theme.colors.textMuted} />
                     <Text style={[styles.popupStatsText, { color: theme.colors.textMuted }]}>{selectedReport.votes || 0}</Text>
-                    <Feather name="message-square" size={14} color={theme.colors.textMuted} style={{ marginLeft: 12 }} />
+                    <Icon name="message-square" size={14} color={theme.colors.textMuted} style={{ marginLeft: 12 }} />
                     <Text style={[styles.popupStatsText, { color: theme.colors.textMuted }]}>{selectedReport.comments || 0}</Text>
                   </View>
                   <TouchableOpacity 
@@ -204,7 +204,7 @@ export function FullMapScreen() {
                     onPress={handleViewDetails}
                   >
                     <Text style={styles.popupButtonText}>Ver detalhes</Text>
-                    <Feather name="arrow-right" size={14} color="#FFF" />
+                    <Icon name="arrow-right" size={14} color="#FFF" />
                   </TouchableOpacity>
                 </View>
               </>
@@ -234,7 +234,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontFamily: 'Inter-SemiBold',
+    fontFamily: 'Nunito-SemiBold',
   },
   searchContainer: {
     paddingHorizontal: 16,
@@ -253,7 +253,7 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 14,
-    fontFamily: 'Inter-Regular',
+    fontFamily: 'Nunito-Regular',
     height: '100%',
   },
   filtersContainer: {
@@ -279,7 +279,7 @@ const styles = StyleSheet.create({
   },
   filterLabel: {
     fontSize: 12,
-    fontFamily: 'Inter-Medium',
+    fontFamily: 'Nunito-Medium',
   },
   mapContainer: {
     flex: 1,
@@ -306,7 +306,7 @@ const styles = StyleSheet.create({
   },
   statsText: {
     fontSize: 12,
-    fontFamily: 'Inter-Medium',
+    fontFamily: 'Nunito-Medium',
   },
   popupOverlay: {
     flex: 1,
@@ -335,21 +335,21 @@ const styles = StyleSheet.create({
   },
   popupSeverityText: {
     fontSize: 11,
-    fontFamily: 'Inter-Medium',
+    fontFamily: 'Nunito-Medium',
   },
   popupTitle: {
     fontSize: 16,
-    fontFamily: 'Inter-SemiBold',
+    fontFamily: 'Nunito-SemiBold',
     marginBottom: 4,
   },
   popupNeighborhood: {
     fontSize: 13,
-    fontFamily: 'Inter-Regular',
+    fontFamily: 'Nunito-Regular',
     marginBottom: 8,
   },
   popupDescription: {
     fontSize: 13,
-    fontFamily: 'Inter-Regular',
+    fontFamily: 'Nunito-Regular',
     lineHeight: 18,
     marginBottom: 12,
   },
@@ -366,7 +366,7 @@ const styles = StyleSheet.create({
   },
   popupStatsText: {
     fontSize: 12,
-    fontFamily: 'Inter-Regular',
+    fontFamily: 'Nunito-Regular',
     marginLeft: 2,
   },
   popupButton: {
@@ -380,6 +380,6 @@ const styles = StyleSheet.create({
   popupButtonText: {
     color: '#FFF',
     fontSize: 12,
-    fontFamily: 'Inter-Medium',
+    fontFamily: 'Nunito-Medium',
   },
 });

@@ -1,6 +1,7 @@
 import React from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { Feather } from '@expo/vector-icons';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { Text } from './Typography';
+import { Icon } from './Icon';
 import { useTheme } from '../context/ThemeContext';
 import type { LevelProgress } from '../types';
 import {
@@ -26,7 +27,7 @@ export const LevelCard: React.FC<Props> = ({ progress, onPress }) => {
     <>
       <View style={styles.header}>
         <View style={[styles.badge, { backgroundColor: theme.colors.primary + '18' }]}>
-          <Feather name="award" size={iconSize.md} color={theme.colors.primary} />
+          <Icon name="award" size={iconSize.md} color={theme.colors.primary} />
         </View>
         <View style={{ flex: 1 }}>
           <Text style={[styles.levelLabel, { color: theme.colors.textMuted }]}>SEU NÍVEL</Text>
@@ -36,7 +37,7 @@ export const LevelCard: React.FC<Props> = ({ progress, onPress }) => {
           {reportsCount} {reportsCount === 1 ? 'reporte' : 'reportes'}
         </Text>
         {onPress && (
-          <Feather
+          <Icon
             name="chevron-right"
             size={iconSize.md}
             color={theme.colors.textMuted}

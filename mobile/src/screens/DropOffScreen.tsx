@@ -1,10 +1,18 @@
 import React, { useState } from 'react';
 import {
-  ActivityIndicator, Alert, FlatList, Modal, Pressable,
-  ScrollView, StyleSheet, Text, TextInput, View,
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  Modal,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  View,
 } from 'react-native';
+import { Text, TextInput } from '../components/Typography';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Feather } from '@expo/vector-icons';
+import { Icon } from '../components/Icon';
+import { MaterialChip } from '../components/Chip';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useDropOff } from '../context/DropOffContext';
@@ -36,20 +44,18 @@ const PointCard: React.FC<{ point: DropOffPoint; onPress: () => void }> = ({ poi
     >
       <View style={styles.cardHeader}>
         <View style={[styles.pinIcon, { backgroundColor: theme.colors.primary + '18' }]}>
-          <Feather name="map-pin" size={iconSize.md} color={theme.colors.primary} />
+          <Icon name="map-pin" size={iconSize.md} color={theme.colors.primary} />
         </View>
         <View style={{ flex: 1 }}>
           <Text style={[styles.cardTitle, { color: theme.colors.textPrimary }]}>{point.name}</Text>
           <Text style={[styles.cardAddress, { color: theme.colors.textSecondary }]}>{point.address}</Text>
         </View>
-        <Feather name="chevron-right" size={iconSize.md} color={theme.colors.textMuted} />
+        <Icon name="chevron-right" size={iconSize.md} color={theme.colors.textMuted} />
       </View>
       {point.accepted_materials.length > 0 && (
         <View style={styles.chipsRow}>
           {point.accepted_materials.map((mat) => (
-            <View key={mat} style={[styles.chip, { backgroundColor: theme.colors.surface2, borderColor: theme.colors.border }]}>
-              <Text style={[styles.chipText, { color: theme.colors.textSecondary }]}>{mat}</Text>
-            </View>
+            <MaterialChip key={mat} material={mat} />
           ))}
         </View>
       )}
@@ -205,7 +211,7 @@ export const DropOffScreen: React.FC = () => {
     <SafeAreaView style={[styles.safe, { backgroundColor: theme.colors.background }]} edges={['top', 'bottom']}>
       <View style={styles.headerRow}>
         <Pressable onPress={() => navigation.goBack()} style={[styles.backBtn, { backgroundColor: theme.colors.surface1, borderColor: theme.colors.border }]}>
-          <Feather name="arrow-left" size={20} color={theme.colors.textPrimary} />
+          <Icon name="arrow-left" size={20} color={theme.colors.textPrimary} />
         </Pressable>
         <View style={{ flex: 1 }}>
           <Text style={[styles.title, { color: theme.colors.textPrimary }]}>Onde descartar</Text>
@@ -228,7 +234,7 @@ export const DropOffScreen: React.FC = () => {
               onPress={() => setViewMode(opt.key)}
               style={[styles.toggleBtn, active && { backgroundColor: theme.colors.primary }]}
             >
-              <Feather name={opt.icon} size={iconSize.sm} color={active ? onAccentColor : theme.colors.textSecondary} />
+              <Icon name={opt.icon} size={iconSize.sm} color={active ? onAccentColor : theme.colors.textSecondary} />
               <Text style={[styles.toggleText, { color: active ? onAccentColor : theme.colors.textSecondary }]}>{opt.label}</Text>
             </Pressable>
           );
@@ -273,7 +279,7 @@ export const DropOffScreen: React.FC = () => {
         accessibilityLabel="Cadastrar novo ponto de coleta"
         style={({ pressed }) => [styles.fab, { backgroundColor: theme.colors.primary }, pressed && { opacity: 0.85 }]}
       >
-        <Feather name="plus" size={iconSize.md} color={onAccentColor} />
+        <Icon name="plus" size={iconSize.md} color={onAccentColor} />
         <Text style={styles.fabText}>Novo ponto</Text>
       </Pressable>
 
@@ -318,7 +324,7 @@ const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing.xxl },
   emptyText: { fontSize: fontSize.md, textAlign: 'center', lineHeight: fontSize.md * lineHeight.normal },
 
-  card: { borderRadius: radius.lg, padding: spacing.lg, borderWidth: 1 },
+  card: { borderRadius: radius.lg, padding: spacing.lg },
   cardHeader: { flexDirection: 'row', alignItems: 'center' },
   pinIcon: { width: 40, height: 40, borderRadius: radius.md, alignItems: 'center', justifyContent: 'center', marginRight: spacing.md },
   cardTitle: { fontSize: fontSize.lg, fontWeight: fontWeight.semibold, lineHeight: fontSize.lg * lineHeight.tight },
@@ -328,7 +334,7 @@ const styles = StyleSheet.create({
   chip: { paddingHorizontal: spacing.sm, paddingVertical: spacing.xxs + 2, borderRadius: radius.pill, borderWidth: 1 },
   chipText: { fontSize: fontSize.xs },
 
-  modalBackdrop: { flex: 1, backgroundColor: 'rgba(15,23,42,0.55)', justifyContent: 'flex-end' },
+  modalBackdrop: { flex: 1, backgroundColor: 'rgba(35,35,35,0.55)', justifyContent: 'flex-end' },
   modalSheet: { maxHeight: '92%', borderTopLeftRadius: radius.xl, borderTopRightRadius: radius.xl, padding: spacing.lg, paddingBottom: spacing.xxl },
   pickerBox: { height: layout.cardImageHeight, borderRadius: radius.md, overflow: 'hidden', borderWidth: layout.borderWidth },
   pickerHint: { fontSize: fontSize.xs, marginTop: spacing.xs },

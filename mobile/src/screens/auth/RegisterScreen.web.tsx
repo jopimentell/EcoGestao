@@ -1,8 +1,9 @@
 // mobile/src/screens/auth/RegisterScreen.web.tsx
 // Cadastro Web Desktop: mesmo painel institucional do Login + formulário em 2 etapas (máx. 480px).
 import React, { useState } from 'react';
-import { ActivityIndicator, Image, Pressable, StyleSheet, Text, View } from 'react-native';
-import { Feather } from '@expo/vector-icons';
+import { ActivityIndicator, Image, Pressable, StyleSheet, View } from 'react-native';
+import { Text } from '../../components/Typography';
+import { Icon } from '../../components/Icon';
 import * as ImagePicker from 'expo-image-picker';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useAuth } from '../../context/AuthContext';
@@ -12,7 +13,7 @@ import { responsiveScreen } from '../../components/web/DesktopContainer';
 import { AuthStackParamList } from '../../navigation/AuthNavigator';
 import { AuthHeroPanel, FormError, WebField } from './LoginScreen.web';
 import {
-  fontSize, fontWeight, iconSize, layout, onAccentColor, radius, spacing,
+  avatarColors, fontSize, fontWeight, iconSize, layout, onAccentColor, onPastelColor, radius, spacing,
 } from '../../theme/designSystem';
 
 const { RegisterScreen: MobileRegisterScreen } = require('./RegisterScreen.tsx') as typeof import('./RegisterScreen');
@@ -21,12 +22,12 @@ type Props = { navigation: NativeStackNavigationProp<AuthStackParamList, 'Regist
 
 // Mesmas chaves de avatar usadas no mobile e no UserAvatar
 const AVATARS = [
-  { key: 'orange',  bg: '#F97316' },
-  { key: 'indigo',  bg: '#6366F1' },
-  { key: 'emerald', bg: '#10B981' },
-  { key: 'rose',    bg: '#F43F5E' },
-  { key: 'sky',     bg: '#0EA5E9' },
-  { key: 'violet',  bg: '#8B5CF6' },
+  { key: 'orange',  bg: avatarColors.orange },
+  { key: 'indigo',  bg: avatarColors.indigo },
+  { key: 'emerald', bg: avatarColors.emerald },
+  { key: 'rose',    bg: avatarColors.rose },
+  { key: 'sky',     bg: avatarColors.sky },
+  { key: 'violet',  bg: avatarColors.violet },
 ] as const;
 
 function RegisterDesktop({ navigation }: Props) {
@@ -83,7 +84,7 @@ function RegisterDesktop({ navigation }: Props) {
       <View style={styles.formSide}>
         <View style={styles.form}>
           <Pressable onPress={() => (step === 1 ? setStep(0) : navigation.goBack())} style={styles.backBtn}>
-            <Feather name="arrow-left" size={iconSize.sm} color={theme.colors.primary} />
+            <Icon name="arrow-left" size={iconSize.sm} color={theme.colors.primary} />
             <Text style={[styles.backText, { color: theme.colors.primary }]}>Voltar</Text>
           </Pressable>
 
@@ -130,7 +131,7 @@ function RegisterDesktop({ navigation }: Props) {
                       onPress={pickImage}
                       style={[styles.galleryBtn, { backgroundColor: theme.colors.surface2, borderColor: theme.colors.border }]}
                     >
-                      <Feather name="upload" size={iconSize.sm} color={theme.colors.primary} />
+                      <Icon name="upload" size={iconSize.sm} color={theme.colors.primary} />
                       <Text style={[styles.galleryText, { color: theme.colors.textPrimary }]}>Enviar uma imagem</Text>
                     </Pressable>
                     <Text style={[styles.hint, { color: theme.colors.textMuted }]}>Ou escolha uma cor:</Text>
@@ -192,7 +193,7 @@ const styles = StyleSheet.create({
     borderWidth: spacing.xxs, alignItems: 'center', justifyContent: 'center', overflow: 'hidden',
   },
   avatarImg: { width: '100%', height: '100%' },
-  avatarText: { color: onAccentColor, fontSize: fontSize.xxl, fontWeight: fontWeight.semibold },
+  avatarText: { color: onPastelColor, fontSize: fontSize.xxl, fontWeight: fontWeight.semibold },
   avatarControls: { flex: 1, gap: spacing.sm },
   galleryBtn: {
     flexDirection: 'row', alignItems: 'center', alignSelf: 'flex-start', gap: spacing.sm,

@@ -2,8 +2,9 @@
 // Ranking de colaboradores (reportes aprovados) via RPC get_top_contributors.
 // Compartilhado entre Home (top 3) e Jornada de níveis (top 10), mobile e web.
 import React, { useCallback, useState } from 'react';
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
-import { Feather } from '@expo/vector-icons';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { Text } from './Typography';
+import { Icon } from './Icon';
 import { useFocusEffect } from '@react-navigation/native';
 import { useTheme } from '../context/ThemeContext';
 import { supabase } from '../services/supabase';
@@ -75,7 +76,7 @@ export function RankPosition({ position }: { position: number }) {
   return (
     <View style={styles.position}>
       {medal
-        ? <Feather name="award" size={iconSize.sm} color={medal} />
+        ? <Icon name="award" size={iconSize.sm} color={medal} />
         : <Text style={[styles.positionText, { color: theme.colors.textMuted }]}>#{position}</Text>}
     </View>
   );

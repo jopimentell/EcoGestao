@@ -1,8 +1,9 @@
 // mobile/src/screens/HomeScreen.web.tsx
 // Dashboard Web Desktop: KPIs no topo, conteúdo central (atalhos, mapa, reportes) e painel lateral (status + ranking).
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Image, Pressable, StyleSheet, Text, View } from 'react-native';
-import { Feather } from '@expo/vector-icons';
+import { ActivityIndicator, Image, Pressable, StyleSheet, View } from 'react-native';
+import { Text } from '../components/Typography';
+import { Icon } from '../components/Icon';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useAuth } from '../context/AuthContext';
@@ -42,25 +43,25 @@ function ReportGridCard({ item, onPress }: {
       onPress={onPress}
       style={({ hovered }: WebPressableState) => [
         styles.reportCard,
-        { backgroundColor: theme.colors.surface1, borderColor: hovered ? theme.colors.primary + tint.strong : theme.colors.border },
+        { backgroundColor: theme.colors.surface1, borderColor: hovered ? theme.colors.primary + tint.strong : 'transparent' },
       ]}
     >
       {cover ? (
         <Image source={{ uri: cover }} style={styles.reportCover} />
       ) : (
         <View style={[styles.reportCover, styles.coverPlaceholder, { backgroundColor: theme.colors.surface2 }]}>
-          <Feather name="image" size={iconSize.lg} color={theme.colors.textMuted} />
+          <Icon name="map-pin" size={iconSize.lg} color={theme.colors.textMuted} />
         </View>
       )}
       <View style={styles.reportBody}>
+        <Text style={[styles.reportStreet, { color: theme.colors.textPrimary }]} numberOfLines={1}>{item.street}</Text>
+        <Text style={[styles.reportSub, { color: theme.colors.textMuted }]} numberOfLines={1}>
+          {item.neighborhood || 'Bairro não informado'} · {getRelativeTime(item.createdAt)}
+        </Text>
         <View style={styles.badgeRow}>
           <DesktopBadge label={item.severity} color={sevColor} />
           <DesktopBadge label={item.status} color={getStatusColor(item.status, theme)} />
         </View>
-        <Text style={[styles.reportStreet, { color: theme.colors.textPrimary }]} numberOfLines={1}>{item.street}</Text>
-        <Text style={[styles.reportSub, { color: theme.colors.textSecondary }]} numberOfLines={1}>
-          {item.neighborhood || 'Bairro não informado'} · {getRelativeTime(item.createdAt)}
-        </Text>
       </View>
     </Pressable>
   );
@@ -162,7 +163,7 @@ function HomeDesktop() {
         right={(
           <Pressable onPress={() => navigation.navigate('Mapa')} style={styles.linkBtn}>
             <Text style={[styles.linkText, { color: theme.colors.primary }]}>Abrir mapa completo</Text>
-            <Feather name="arrow-right" size={iconSize.sm} color={theme.colors.primary} />
+            <Icon name="arrow-right" size={iconSize.sm} color={theme.colors.primary} />
           </Pressable>
         )}
       >
@@ -177,13 +178,13 @@ function HomeDesktop() {
         </Text>
         <Pressable onPress={() => navigation.navigate('Comunidade')} style={styles.linkBtn}>
           <Text style={[styles.linkText, { color: theme.colors.primary }]}>Ver todos</Text>
-          <Feather name="arrow-right" size={iconSize.sm} color={theme.colors.primary} />
+          <Icon name="arrow-right" size={iconSize.sm} color={theme.colors.primary} />
         </Pressable>
       </View>
 
       {reports.length === 0 ? (
         <DesktopCard style={styles.emptyCard}>
-          <Feather name="info" size={iconSize.xl} color={theme.colors.textMuted} />
+          <Icon name="info" size={iconSize.xl} color={theme.colors.textMuted} />
           <Text style={[styles.emptyTitle, { color: theme.colors.textPrimary }]}>Nenhum reporte ainda</Text>
           <Text style={[styles.emptySub, { color: theme.colors.textSecondary }]}>Seja o primeiro a reportar uma ocorrência em Caxias!</Text>
         </DesktopCard>
@@ -220,7 +221,7 @@ function HomeDesktop() {
         })}
       </DesktopCard>
 
-      <DesktopCard title="Top 3 colaboradores" right={<Feather name="award" size={iconSize.sm} color={theme.colors.primary} />}>
+      <DesktopCard title="Top 3 colaboradores" right={<Icon name="award" size={iconSize.sm} color={theme.colors.primary} />}>
         <TopContributorsList
           items={ranking.items}
           loading={ranking.loading}
@@ -242,7 +243,7 @@ function HomeDesktop() {
             onPress={() => navigation.navigate('Reportar')}
             style={({ hovered }: WebPressableState) => [styles.primaryBtn, { backgroundColor: theme.colors.primary }, hovered && styles.hovered]}
           >
-            <Feather name="plus" size={iconSize.sm} color={onAccentColor} />
+            <Icon name="plus" size={iconSize.sm} color={onAccentColor} />
             <Text style={styles.primaryBtnText}>Novo reporte</Text>
           </Pressable>
         )}
@@ -297,8 +298,8 @@ const styles = StyleSheet.create({
   reportCover: { width: '100%', height: layout.cardImageHeight },
   coverPlaceholder: { alignItems: 'center', justifyContent: 'center' },
   reportBody: { padding: spacing.lg, gap: spacing.xs },
-  badgeRow: { flexDirection: 'row', gap: spacing.xs, marginBottom: spacing.xs },
-  reportStreet: { fontSize: fontSize.md, fontWeight: fontWeight.semibold },
+  badgeRow: { flexDirection: 'row', gap: spacing.xs, marginTop: spacing.sm },
+  reportStreet: { fontSize: fontSize.md, fontWeight: fontWeight.bold },
   reportSub: { fontSize: fontSize.xs },
 
   emptyCard: { alignItems: 'center' },

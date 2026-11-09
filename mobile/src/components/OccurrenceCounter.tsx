@@ -1,7 +1,8 @@
 // mobile/src/components/OccurrenceCounter.tsx
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { Feather } from '@expo/vector-icons';
+import { StyleSheet, View } from 'react-native';
+import { Text } from './Typography';
+import { Icon } from './Icon';
 import { useTheme } from '../context/ThemeContext';
 import {
   fontSize, fontWeight, iconSize, lineHeight, radius, shadows, spacing,
@@ -27,7 +28,7 @@ export const OccurrenceCounter: React.FC<Props> = ({
       shadows.md,
     ]}>
       <View style={[styles.iconBubble, { backgroundColor: theme.colors.primary + '18' }]}>
-        <Feather name="map-pin" size={iconSize.lg} color={theme.colors.primary} />
+        <Icon name="map-pin" size={iconSize.lg} color={theme.colors.primary} />
       </View>
 
       <View style={styles.body}>

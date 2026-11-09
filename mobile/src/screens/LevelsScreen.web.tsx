@@ -1,8 +1,9 @@
 // mobile/src/screens/LevelsScreen.web.tsx
 // Jornada de níveis Web Desktop: grid de níveis + painel lateral com o progresso do usuário.
 import React from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
-import { Feather } from '@expo/vector-icons';
+import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
+import { Text } from '../components/Typography';
+import { Icon } from '../components/Icon';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
@@ -36,7 +37,7 @@ function LevelsDesktop() {
   } else if (error) {
     main = (
       <DesktopCard style={styles.center}>
-        <Feather name="alert-circle" size={iconSize.xl} color={theme.colors.textMuted} />
+        <Icon name="alert-circle" size={iconSize.xl} color={theme.colors.textMuted} />
         <Text style={[styles.muted, { color: theme.colors.textSecondary }]}>{error}</Text>
         <Pressable onPress={reload} style={[styles.primaryBtn, { backgroundColor: theme.colors.primary }]}>
           <Text style={styles.primaryText}>Tentar novamente</Text>
@@ -69,7 +70,7 @@ function LevelsDesktop() {
                     ? { backgroundColor: theme.colors.surface2, borderColor: theme.colors.border }
                     : { backgroundColor: v.color, borderColor: v.color },
                 ]}>
-                  <Feather name={v.icon} size={iconSize.md} color={locked ? theme.colors.textMuted : onAccentColor} />
+                  <Icon name={v.icon} size={iconSize.md} color={locked ? theme.colors.textMuted : onAccentColor} />
                 </View>
                 <Text style={[styles.levelNumber, { color: theme.colors.textMuted }]}>NÍVEL {level.level}</Text>
               </View>
@@ -117,7 +118,7 @@ function LevelsDesktop() {
         </View>
       </DesktopCard>
 
-      <DesktopCard title="Top 10 colaboradores" right={<Feather name="award" size={iconSize.sm} color={theme.colors.primary} />}>
+      <DesktopCard title="Top 10 colaboradores" right={<Icon name="award" size={iconSize.sm} color={theme.colors.primary} />}>
         <TopContributorsList
           items={ranking.items}
           loading={ranking.loading}
@@ -133,7 +134,7 @@ function LevelsDesktop() {
           { icon: 'lock' as const, color: theme.colors.textMuted, label: 'Nível bloqueado' },
         ].map((item) => (
           <View key={item.label} style={styles.legendRow}>
-            <Feather name={item.icon} size={iconSize.sm} color={item.color} />
+            <Icon name={item.icon} size={iconSize.sm} color={item.color} />
             <Text style={[styles.muted, { color: theme.colors.textSecondary }]}>{item.label}</Text>
           </View>
         ))}
@@ -146,7 +147,7 @@ function LevelsDesktop() {
         onPress={() => navigation.navigate('Reportar' as never)}
         style={({ hovered }: WebPressableState) => [styles.primaryBtn, { backgroundColor: theme.colors.primary }, hovered && styles.hovered]}
       >
-        <Feather name="plus" size={iconSize.sm} color={onAccentColor} />
+        <Icon name="plus" size={iconSize.sm} color={onAccentColor} />
         <Text style={styles.primaryText}>Fazer um novo reporte</Text>
       </Pressable>
     </>
@@ -157,7 +158,7 @@ function LevelsDesktop() {
       <DesktopPageHeader
         left={navigation.canGoBack() ? (
           <Pressable onPress={() => navigation.goBack()} accessibilityLabel="Voltar" style={[styles.backBtn, { backgroundColor: theme.colors.surface1, borderColor: theme.colors.border }]}>
-            <Feather name="arrow-left" size={iconSize.sm} color={theme.colors.textPrimary} />
+            <Icon name="arrow-left" size={iconSize.sm} color={theme.colors.textPrimary} />
           </Pressable>
         ) : undefined}
         title="Jornada de níveis"

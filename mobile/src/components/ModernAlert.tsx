@@ -1,6 +1,7 @@
 import React, { useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, Modal, Pressable, Animated } from 'react-native';
-import { Feather } from '@expo/vector-icons';
+import { View, StyleSheet, Modal, Pressable, Animated } from 'react-native';
+import { Text } from './Typography';
+import { Icon } from './Icon';
 import { BeamButton } from './BeamButton';
 import { useTheme } from '../context/ThemeContext';
 
@@ -74,7 +75,7 @@ export function ModernAlert({ visible, title, message, onClose }: ModernAlertPro
           ]}
         >
           <View style={[styles.iconBox, { backgroundColor: theme.colors.primary + '15' }]}>
-            <Feather name="alert-circle" size={32} color={theme.colors.primary} />
+            <Icon name="alert-circle" size={32} color={theme.colors.primary} />
           </View>
           <Text style={[styles.title, { color: theme.colors.textPrimary }]}>{title}</Text>
           <Text style={[styles.message, { color: theme.colors.textSecondary }]}>{message}</Text>
@@ -122,13 +123,13 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     marginBottom: 8,
     textAlign: 'center',
-    fontFamily: 'Inter-SemiBold',
+    fontFamily: 'Nunito-SemiBold',
   },
   message: {
     fontSize: 14,
     textAlign: 'center',
     lineHeight: 20,
     marginBottom: 20,
-    fontFamily: 'Inter-Regular',
+    fontFamily: 'Nunito-Regular',
   },
 });

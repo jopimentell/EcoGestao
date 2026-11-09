@@ -1,16 +1,25 @@
 import React, { useRef, useEffect, useState } from 'react';
 import {
-  View, Text, TextInput, StyleSheet, Pressable,
-  Animated, Easing, ActivityIndicator, KeyboardAvoidingView,
-  Platform, ScrollView, Alert,
+  View,
+  StyleSheet,
+  Pressable,
+  Animated,
+  Easing,
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Alert,
 } from 'react-native';
+import { Text, TextInput } from '../../components/Typography';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Feather } from '@expo/vector-icons';
+import { Icon } from '../../components/Icon';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useAuth } from '../../context/AuthContext';
 import { BeamButton } from '../../components/BeamButton';
 import { theme as staticTheme } from '../../theme/tokens';
+import { semanticColors } from '../../theme/designSystem';
 import { AuthStackParamList } from '../../navigation/AuthNavigator';
 import { useTheme } from '../../context/ThemeContext';
 
@@ -49,7 +58,7 @@ function Field({
         />
         {secure && (
           <Pressable onPress={() => setShowPwd(!showPwd)} style={styles.eyeBtn}>
-            <Feather name={showPwd ? 'eye-off' : 'eye'} size={18} color={theme.colors.textMuted} />
+            <Icon name={showPwd ? 'eye-off' : 'eye'} size={18} color={theme.colors.textMuted} />
           </Pressable>
         )}
       </Animated.View>
@@ -88,7 +97,7 @@ export function LoginScreen({ navigation }: Props) {
   return (
     <SafeAreaView style={styles.safe}>
       <LinearGradient colors={[theme.colors.surface1, theme.colors.background]} style={StyleSheet.absoluteFillObject} />
-      <LinearGradient colors={['rgba(249,115,22,0.10)', 'transparent']} style={styles.glow} />
+      <LinearGradient colors={['rgba(69,156,106,0.10)', 'transparent']} style={styles.glow} />
 
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
@@ -97,7 +106,7 @@ export function LoginScreen({ navigation }: Props) {
             {/* Logo / brand */}
             <View style={styles.brand}>
               <View style={[styles.logoCircle, { backgroundColor: theme.colors.primary + '15', borderColor: theme.colors.primary + '44' }]}>
-                <Feather name="map-pin" size={32} color={theme.colors.primary} />
+                <Icon name="map-pin" size={32} color={theme.colors.primary} />
               </View>
               <Text style={[styles.logoTitle, { color: theme.colors.textPrimary }]}>EcoGestão</Text>
               <Text style={[styles.logoSub, { color: theme.colors.textSecondary }]}>Conecte-se para contribuir</Text>
@@ -125,8 +134,8 @@ export function LoginScreen({ navigation }: Props) {
               />
 
               {!!error && (
-                <View style={[styles.errorBox, { backgroundColor: isDark ? 'rgba(239,68,68,0.15)' : 'rgba(239,68,68,0.05)' }]}>
-                  <Feather name="alert-circle" size={14} color="#EF4444" style={{ marginRight: 8 }} />
+                <View style={[styles.errorBox, { backgroundColor: isDark ? 'rgba(217,48,54,0.15)' : 'rgba(217,48,54,0.05)' }]}>
+                  <Icon name="alert-circle" size={14} color={semanticColors.danger} style={{ marginRight: 8 }} />
                   <Text style={styles.errorText}>{error}</Text>
                 </View>
               )}
@@ -154,7 +163,7 @@ export function LoginScreen({ navigation }: Props) {
                 Não tem conta?{' '}
                 <Text style={[styles.registerHighlight, { color: theme.colors.primary }]}>Criar conta gratuita</Text>
               </Text>
-              <Feather name="arrow-right" size={14} color={theme.colors.primary} style={{ marginLeft: 4 }} />
+              <Icon name="arrow-right" size={14} color={theme.colors.primary} style={{ marginLeft: 4 }} />
             </Pressable>
 
           </Animated.View>
@@ -184,7 +193,7 @@ const styles = StyleSheet.create({
     maxWidth: 480,          // 👈 NOVO: Evita que a logo fique perdida em telas grandes
     alignSelf: 'center',    // 👈 NOVO
   },
-  logoCircle:  { width: 72, height: 72, borderRadius: 36, backgroundColor: 'rgba(249,115,22,0.12)', borderWidth: 1.5, borderColor: 'rgba(249,115,22,0.4)', justifyContent: 'center', alignItems: 'center' },
+  logoCircle:  { width: 72, height: 72, borderRadius: 36, backgroundColor: 'rgba(69,156,106,0.12)', borderWidth: 1.5, borderColor: 'rgba(69,156,106,0.4)', justifyContent: 'center', alignItems: 'center' },
   logoTitle:   { fontSize: 24, color: staticTheme.colors.textPrimary, fontFamily: staticTheme.typography.fontFamily.semiBold },
   logoSub:     { fontSize: 13, color: staticTheme.colors.textSecondary, fontFamily: staticTheme.typography.fontFamily.regular },
 
@@ -207,8 +216,8 @@ const styles = StyleSheet.create({
   fieldInput:  { flex: 1, color: staticTheme.colors.textPrimary, fontSize: 15, fontFamily: staticTheme.typography.fontFamily.regular, paddingVertical: 13 },
   eyeBtn:      { padding: 4 },
 
-  errorBox:    { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(239,68,68,0.1)', borderRadius: staticTheme.radii.md, borderWidth: 1, borderColor: 'rgba(239,68,68,0.3)', padding: staticTheme.spacing.sm },
-  errorText:   { color: '#EF4444', fontSize: 13, fontFamily: staticTheme.typography.fontFamily.regular, flex: 1 },
+  errorBox:    { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(217,48,54,0.1)', borderRadius: staticTheme.radii.md, borderWidth: 1, borderColor: 'rgba(217,48,54,0.3)', padding: staticTheme.spacing.sm },
+  errorText:   { color: semanticColors.danger, fontSize: 13, fontFamily: staticTheme.typography.fontFamily.regular, flex: 1 },
 
   submitBtn:   { marginTop: 4 },
 

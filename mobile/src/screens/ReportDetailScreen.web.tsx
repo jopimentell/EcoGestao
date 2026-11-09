@@ -1,8 +1,9 @@
 // mobile/src/screens/ReportDetailScreen.web.tsx
 // Detalhe Web Desktop: galeria + descrição + comentários à esquerda; informações e ações (admin/dono) à direita.
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import { Feather } from '@expo/vector-icons';
+import { ActivityIndicator, Image, Pressable, StyleSheet, View } from 'react-native';
+import { Text, TextInput } from '../components/Typography';
+import { Icon, type IconName } from '../components/Icon';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useAuth } from '../context/AuthContext';
 import { useReports } from '../context/ReportsContext';
@@ -22,7 +23,6 @@ import {
 
 const { ReportDetailScreen: MobileReportDetailScreen } = require('./ReportDetailScreen.tsx') as typeof import('./ReportDetailScreen');
 
-type FeatherName = keyof typeof Feather.glyphMap;
 
 interface CommentRow {
   id: string;
@@ -32,11 +32,11 @@ interface CommentRow {
 }
 
 /* ---------- Linha de informação ---------- */
-function InfoRow({ icon, label, value }: { icon: FeatherName; label: string; value: string }) {
+function InfoRow({ icon, label, value }: { icon: IconName; label: string; value: string }) {
   const { theme } = useTheme();
   return (
     <View style={styles.infoRow}>
-      <Feather name={icon} size={iconSize.sm} color={theme.colors.textMuted} />
+      <Icon name={icon} size={iconSize.sm} color={theme.colors.textMuted} />
       <Text style={[styles.infoLabel, { color: theme.colors.textMuted }]}>{label}</Text>
       <Text style={[styles.infoValue, { color: theme.colors.textPrimary }]} numberOfLines={2}>{value}</Text>
     </View>
@@ -150,7 +150,7 @@ function ReportDetailDesktop() {
     return (
       <DesktopContainer maxWidth={layout.maxFormWidth} contentStyle={styles.centerWrap}>
         <DesktopCard style={styles.center}>
-          <Feather name="alert-circle" size={iconSize.xxl} color={theme.colors.textMuted} />
+          <Icon name="alert-circle" size={iconSize.xxl} color={theme.colors.textMuted} />
           <Text style={[styles.notFound, { color: theme.colors.textPrimary }]}>Report não encontrado</Text>
           <BeamButton title="Voltar" iconLeft="arrow-left" onPress={goBack} />
         </DesktopCard>
@@ -163,7 +163,7 @@ function ReportDetailDesktop() {
   const statusColor = getStatusColor(report.status, theme);
   const hasCoords = !!report.latitude && !!report.longitude;
 
-  const ADMIN_ACTIONS: { status: string; label: string; icon: FeatherName; color: string }[] = [
+  const ADMIN_ACTIONS: { status: string; label: string; icon: IconName; color: string }[] = [
     { status: 'Aprovado',  label: 'Aprovar',  icon: 'check',        color: severityColors.Baixa },
     { status: 'Rejeitado', label: 'Rejeitar', icon: 'x',            color: severityColors.Alta },
     { status: 'Resolvido', label: 'Resolver', icon: 'check-circle', color: theme.colors.indigo },
@@ -230,7 +230,7 @@ function ReportDetailDesktop() {
           >
             {submittingComment
               ? <ActivityIndicator size="small" color={onAccentColor} />
-              : <Feather name="send" size={iconSize.sm} color={onAccentColor} />}
+              : <Icon name="send" size={iconSize.sm} color={onAccentColor} />}
             <Text style={styles.sendText}>Comentar</Text>
           </Pressable>
         </View>
@@ -253,7 +253,7 @@ function ReportDetailDesktop() {
             hovered && { backgroundColor: theme.colors.surface2 },
           ]}
         >
-          <Feather name="thumbs-up" size={iconSize.sm} color={hasVoted ? theme.colors.primary : theme.colors.textSecondary} />
+          <Icon name="thumbs-up" size={iconSize.sm} color={hasVoted ? theme.colors.primary : theme.colors.textSecondary} />
           <Text style={[styles.voteText, { color: hasVoted ? theme.colors.primary : theme.colors.textSecondary }]}>
             {hasVoted ? 'Você apoiou' : 'Apoiar'} · {report.votes || 0} votos
           </Text>
@@ -287,7 +287,7 @@ function ReportDetailDesktop() {
                 report.status === a.status && styles.disabled,
               ]}
             >
-              <Feather name={a.icon} size={iconSize.sm} color={onAccentColor} />
+              <Icon name={a.icon} size={iconSize.sm} color={onAccentColor} />
               <Text style={styles.actionText}>{a.label}</Text>
             </Pressable>
           ))}
@@ -308,14 +308,14 @@ function ReportDetailDesktop() {
                   <Text style={[styles.ghostText, { color: theme.colors.textSecondary }]}>Cancelar</Text>
                 </Pressable>
                 <Pressable onPress={handleDelete} disabled={updating} style={[styles.actionBtn, styles.flex1, { backgroundColor: severityColors.Alta }]}>
-                  {updating ? <ActivityIndicator size="small" color={onAccentColor} /> : <Feather name="trash-2" size={iconSize.sm} color={onAccentColor} />}
+                  {updating ? <ActivityIndicator size="small" color={onAccentColor} /> : <Icon name="trash-2" size={iconSize.sm} color={onAccentColor} />}
                   <Text style={styles.actionText}>Deletar</Text>
                 </Pressable>
               </View>
             </>
           ) : (
             <Pressable onPress={() => setConfirmDelete(true)} style={[styles.actionBtn, { backgroundColor: severityColors.Alta }]}>
-              <Feather name="trash-2" size={iconSize.sm} color={onAccentColor} />
+              <Icon name="trash-2" size={iconSize.sm} color={onAccentColor} />
               <Text style={styles.actionText}>Deletar {isOwner ? 'meu report' : 'report'}</Text>
             </Pressable>
           )}
@@ -333,7 +333,7 @@ function ReportDetailDesktop() {
         <DesktopPageHeader
           left={navigation.canGoBack() ? (
             <Pressable onPress={goBack} accessibilityLabel="Voltar" style={[styles.backBtn, { backgroundColor: theme.colors.surface1, borderColor: theme.colors.border }]}>
-              <Feather name="arrow-left" size={iconSize.sm} color={theme.colors.textPrimary} />
+              <Icon name="arrow-left" size={iconSize.sm} color={theme.colors.textPrimary} />
             </Pressable>
           ) : undefined}
           eyebrow="Detalhes da ocorrência"
