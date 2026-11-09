@@ -78,7 +78,7 @@ export const WelcomeScreen = ({ onLoginPress, onRegisterPress }: { onLoginPress:
           <Animated.View style={[styles.badgeWrapper, badgeAnim]}>
             <View style={[styles.badge, { backgroundColor: theme.colors.primary + '15', borderColor: theme.colors.primary + '44' }]}>
               <View style={[styles.badgeDot, { backgroundColor: theme.colors.primary }]} />
-              <Text style={[styles.badgeText, { color: theme.colors.primary }]}>Caxias Buracos v2.0</Text>
+              <Text style={[styles.badgeText, { color: theme.colors.primary }]}>EcoGestão v2.0</Text>
             </View>
           </Animated.View>
 
@@ -92,7 +92,7 @@ export const WelcomeScreen = ({ onLoginPress, onRegisterPress }: { onLoginPress:
 
           {/* Subtitle */}
           <Animated.Text style={[styles.subtitle, { color: theme.colors.textSecondary }, subAnim]}>
-            Reporte buracos, visualize o mapa e interaja com a sua comunidade em Caxias.
+            Reporte Denúncias, visualize o mapa e interaja com a sua comunidade em Caxias.
           </Animated.Text>
 
           {/* Divider line */}

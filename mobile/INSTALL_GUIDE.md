@@ -1,4 +1,4 @@
-# Guia de Instalação - TAPAburacoCX
+# Guia de Instalação - TAPADenúnciaCX
 
 Este guia contém as instruções necessárias para configurar e executar o projeto em qualquer máquina, refletindo as tecnologias mais recentes e o design premium implementado.
 
@@ -30,7 +30,7 @@ O projeto utiliza uma stack moderna focada em performance e estética premium:
 - **Busca e Filtros de Mapa**: Sistema funcional de busca por ruas/bairros e filtragem por severidade (Baixa a Crítica) diretamente na interface do mapa.
 - **Modern Alert System**: Substituição dos alertas nativos por um sistema de notificações customizado com animações de "Jump" (salto) via **Reanimated**.
 - **Design System Premium**: Uso extensivo de `LinearGradient`, sombras profundas, bordas ultra-arredondadas (28px) e tipografia **Inter**.
-- **Geolocalização (Expo Location)**: Captura precisa de coordenadas para garantir que os buracos sejam marcados exatamente onde estão.
+- **Geolocalização (Expo Location)**: Captura precisa de coordenadas para garantir que os Denúncias sejam marcados exatamente onde estão.
 - **Mídia (Expo Image Picker)**: Sistema de captura de fotos obrigatório para validação de reportes.
 - **Context API (State Management)**: Gerenciamento centralizado de autenticação, temas e banco de dados de reportes.
 

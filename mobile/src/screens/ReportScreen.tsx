@@ -103,7 +103,7 @@ function PhotoModal({ visible, onClose, onTakePhoto, theme }: { visible: boolean
           <View style={styles.modalHeader}>
             <View style={[styles.modalHandle, { backgroundColor: theme.colors.border }]} />
             <Text style={[styles.modalTitle, { color: theme.colors.textPrimary }]}>Adicionar Foto</Text>
-            <Text style={[styles.modalSub, { color: theme.colors.textSecondary }]}>Capture uma imagem real do buraco</Text>
+            <Text style={[styles.modalSub, { color: theme.colors.textSecondary }]}>Capture uma imagem real do Denúncia</Text>
           </View>
           
           <View style={styles.modalActions}>
@@ -177,7 +177,7 @@ export const ReportScreen = () => {
     setModalVisible(false);
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
     if (status !== 'granted') {
-      setAlertConfig({ visible: true, title: 'Permissão Negada', message: 'Precisamos de acesso à sua câmera para capturar a foto do buraco.' });
+      setAlertConfig({ visible: true, title: 'Permissão Negada', message: 'Precisamos de acesso à sua câmera para capturar a foto do Denúncia.' });
       return;
     }
 
@@ -216,7 +216,7 @@ export const ReportScreen = () => {
   const handleSubmit = async () => {
     if (!user || !severity) return;
     if (images.length === 0) {
-      setAlertConfig({ visible: true, title: 'Fotos obrigatórias', message: 'Adicione pelo menos uma foto do buraco.' });
+      setAlertConfig({ visible: true, title: 'Fotos obrigatórias', message: 'Adicione pelo menos uma foto do Denúncia.' });
       return;
     }
     if (!description.trim()) {
@@ -265,7 +265,7 @@ export const ReportScreen = () => {
       <ScrollView style={styles.scroll} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
 
         <View style={styles.header}>
-          <Text style={[styles.headerTitle, { color: theme.colors.textPrimary }]}>Reportar Buraco</Text>
+          <Text style={[styles.headerTitle, { color: theme.colors.textPrimary }]}>Reportar Denúncia</Text>
           <Text style={[styles.headerSub, { color: theme.colors.textSecondary }]}>Ajude a melhorar as vias de Caxias</Text>
         </View>
 
@@ -288,7 +288,7 @@ export const ReportScreen = () => {
             <View style={[styles.card, { backgroundColor: theme.colors.surface1, borderColor: theme.colors.border }]}>
               <View style={styles.cardTitleRow}>
                 <Feather name="map-pin" size={18} color={theme.colors.primary} />
-                <Text style={[styles.cardTitle, { color: theme.colors.textPrimary, marginLeft: 8 }]}>Onde é o buraco?</Text>
+                <Text style={[styles.cardTitle, { color: theme.colors.textPrimary, marginLeft: 8 }]}>Onde é o Denúncia?</Text>
               </View>
               
               <Text style={[styles.inputLabel, { color: theme.colors.textSecondary }]}>Toque no mapa para marcar ou use GPS</Text>
@@ -326,7 +326,7 @@ export const ReportScreen = () => {
                 ))}
               </View>
               <LabelInput label="Descrição *" placeholder="Descreva o problema (riscos...)" value={description} onChangeText={setDesc} multiline theme={theme} />
-              <Text style={[styles.inputLabel, { color: theme.colors.textSecondary }]}>Fotos do buraco * ({images.length}/3)</Text>
+              <Text style={[styles.inputLabel, { color: theme.colors.textSecondary }]}>Fotos do Denúncia * ({images.length}/3)</Text>
               <View style={styles.photoRow}>
                 {images.map((uri, i) => (
                   <View key={i} style={styles.photoPreviewWrapper}>

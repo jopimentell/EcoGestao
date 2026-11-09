@@ -13,6 +13,7 @@ export const darkTheme = {
     textMuted: '#737373',
     border: '#262626',
     borderLight: 'rgba(255,255,255,0.08)',
+    
   },
   spacing: { xs: 4, sm: 8, md: 16, lg: 24, xl: 32, xxl: 64 },
   typography: {

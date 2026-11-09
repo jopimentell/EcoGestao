@@ -1,3 +1,5 @@
+// mobile/App.tsx
+
 import React, { useRef, useEffect } from 'react';
 import { View, StyleSheet, Animated, Easing, ActivityIndicator } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
@@ -7,12 +9,12 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { AuthProvider, useAuth } from './src/context/AuthContext';
 import { ReportsProvider } from './src/context/ReportsContext';
+import { DropOffProvider } from './src/context/DropOffContext';
 import { AppNavigator } from './src/navigation/AppNavigator';
 import { AuthNavigator } from './src/navigation/AuthNavigator';
 import { theme } from './src/theme/tokens';
 import { ThemeProvider, useTheme } from './src/context/ThemeContext';
 
-// ── Splash / loading fade ─────────────────────────────────────────────────────
 function SplashFade({ children }: { children: React.ReactNode }) {
   const opacity = useRef(new Animated.Value(0)).current;
   useEffect(() => {
@@ -21,7 +23,6 @@ function SplashFade({ children }: { children: React.ReactNode }) {
   return <Animated.View style={[{ flex: 1 }, { opacity }]}>{children}</Animated.View>;
 }
 
-// ── Loading Screen (enquanto verifica autenticação) ──────────────────────────
 function LoadingScreen() {
   const { isDark } = useTheme();
   return (
@@ -31,19 +32,15 @@ function LoadingScreen() {
   );
 }
 
-// ── Root Content (decides which navigator to show) ──────────────────────────
 function RootContent() {
-  const { user, loading } = useAuth();  // ← ADICIONADO loading
+  const { user, loading } = useAuth();
   const { isDark } = useTheme();
 
-  // Mostrar loading enquanto verifica sessão
-  if (loading) {
-    return <LoadingScreen />;
-  }
+  if (loading) return <LoadingScreen />;
 
   return (
     <SplashFade>
-      <StatusBar style={isDark ? "light" : "dark"} />
+      <StatusBar style={isDark ? 'light' : 'dark'} />
       {user ? <AppNavigator /> : <AuthNavigator />}
     </SplashFade>
   );
@@ -63,9 +60,11 @@ export default function App() {
       <ThemeProvider>
         <AuthProvider>
           <ReportsProvider>
-            <NavigationContainer>
-              <RootContent />
-            </NavigationContainer>
+            <DropOffProvider>
+              <NavigationContainer>
+                <RootContent />
+              </NavigationContainer>
+            </DropOffProvider>
           </ReportsProvider>
         </AuthProvider>
       </ThemeProvider>
@@ -75,9 +74,5 @@ export default function App() {
 
 const styles = StyleSheet.create({
   loading: { flex: 1, backgroundColor: theme.colors.background },
-  loadingContainer: { 
-    flex: 1, 
-    justifyContent: 'center', 
-    alignItems: 'center' 
-  },
+  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
 });

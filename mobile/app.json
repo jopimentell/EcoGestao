@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Caxias Buracos",
-    "slug": "caxias-buracos",
+    "name": "EcoGestão",
+    "slug": "caxias-Denúncias",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -16,7 +16,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#050505"
       },
-      "package": "com.caxiasburacos.app",
+      "package": "com.caxiasDenúncias.app",
       "permissions": [
         "android.permission.ACCESS_FINE_LOCATION",
         "android.permission.ACCESS_COARSE_LOCATION",
@@ -28,7 +28,7 @@
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.caxiasburacos.app"
+      "bundleIdentifier": "com.caxiasDenúncias.app"
     },
     "plugins": [
       "expo-font",
@@ -36,7 +36,7 @@
       [
         "expo-location",
         {
-          "locationAlwaysAndWhenInUsePermission": "Este app precisa da sua localização para marcar buracos no mapa."
+          "locationAlwaysAndWhenInUsePermission": "Este app precisa da sua localização para marcar Denúncias no mapa."
         }
       ]
     ],

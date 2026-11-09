@@ -1,11 +1,11 @@
-# Sistema de Mapeamento de Buracos Urbanos
+# Sistema de Mapeamento de Denúncias Urbanos
 Aplicativo colaborativo para reporte de problemas de infraestrutura urbana
 
 ---
 
 ## Sobre o Projeto
 
-Aplicativo mobile que permite cidadãos reportarem buracos e problemas no asfalto de forma colaborativa, conectando população e poder público com acompanhamento em tempo real.
+Aplicativo mobile que permite cidadãos reportarem Denúncias e problemas no asfalto de forma colaborativa, conectando população e poder público com acompanhamento em tempo real.
 
 ### 🎯 Objetivos Acadêmicos
 
@@ -41,10 +41,10 @@ Aplicativo mobile que permite cidadãos reportarem buracos e problemas no asfalt
 
 ### Mapa e Comunidade
 
-| Mapa de Buracos | Feed da Comunidade |
+| Mapa de Denúncias | Feed da Comunidade |
 |:---------------:|:------------------:|
 | ![Mapa com Marcadores](mobile/assets/screenshots/map-screen.png) | ![Feed de Reportes](mobile/assets/screenshots/feed-screen.png) |
-| Visualização geolocalizada dos buracos com marcadores coloridos | Listagem de reportes com votos, comentários e status |
+| Visualização geolocalizada dos Denúncias com marcadores coloridos | Listagem de reportes com votos, comentários e status |
 
 ---
 
@@ -59,7 +59,7 @@ Aplicativo mobile que permite cidadãos reportarem buracos e problemas no asfalt
 
 ### Telas Complementares
 
-| Tela de Reporte | Detalhes do Buraco |
+| Tela de Reporte | Detalhes do Denúncia |
 |:---------------:|:------------------:|
 | ![Formulário de Reporte](mobile/assets/screenshots/report-screen.png) | ![Detalhes do Reporte](mobile/assets/screenshots/report-detail-screen.png) |
 | Formulário para novo reporte com upload de imagens | Visualização detalhada com comentários e ações de admin |
@@ -105,7 +105,7 @@ Aplicativo mobile que permite cidadãos reportarem buracos e problemas no asfalt
 ## 📂 Estrutura do Projeto
 
 ```
-tapaBC2.0/
+EcoGestão2.0/
 ├── mobile/                              # Frontend React Native
 │   ├── assets/
 │   │   └── screenshots/                 # 📸 Imagens da documentação
@@ -119,12 +119,12 @@ tapaBC2.0/
 │   │       └── report-detail-screen.png
 │   ├── src/
 │   │   ├── screens/                     # Telas do aplicativo
-│   │   │   ├── HomeScreen.tsx           # Mapa + lista de buracos
+│   │   │   ├── HomeScreen.tsx           # Mapa + lista de Denúncias
 │   │   │   ├── ReportScreen.tsx         # Formulário de reporte
 │   │   │   ├── FeedScreen.tsx           # Comunidade (comentários)
 │   │   │   ├── ProfileScreen.tsx        # Perfil + conquistas
 │   │   │   ├── LoginScreen.tsx          # Autenticação
-│   │   │   └── ReportDetailScreen.tsx   # Detalhes do buraco
+│   │   │   └── ReportDetailScreen.tsx   # Detalhes do Denúncia
 │   │   ├── context/                     # Estado global
 │   │   │   ├── AuthContext.tsx          # Autenticação
 │   │   │   ├── ReportsContext.tsx       # Gestão de reportes
@@ -151,7 +151,7 @@ tapaBC2.0/
 | Tabela | Descrição | Campos Principais |
 |--------|-----------|-------------------|
 | `profiles` | Perfis de usuário | id, name, handle, role |
-| `reports` | Reportes de buracos | id, street, description, severity, status, votes |
+| `reports` | Reportes de Denúncias | id, street, description, severity, status, votes |
 | `report_images` | Imagens dos reportes | id, report_id, image_url |
 | `votes` | Votos dos usuários | user_id, report_id |
 | `comments` | Comentários | id, report_id, user_id, content |
@@ -171,7 +171,7 @@ tapaBC2.0/
 - Sessão persistente
 - Diferenciação usuário comum / administrador
 
-### Reporte de Buracos
+### Reporte de Denúncias
 - Captura de localização (GPS ou toque no mapa)
 - Upload de até 3 imagens
 - Seleção de gravidade (Baixa/Média/Alta/Crítica)
@@ -216,8 +216,8 @@ tapaBC2.0/
 
 ```bash
 # 1. Clonar o repositório
-git clone https://github.com/ThiagoLachowski/tapaBC2.0.git
-cd tapaBC2.0
+git clone https://github.com/ThiagoLachowski/EcoGestão2.0.git
+cd EcoGestão2.0
 
 # 2. Instalar dependências
 cd mobile
@@ -272,4 +272,4 @@ WHERE id = (SELECT id FROM auth.users WHERE email = 'admin@exemplo.com');
 
 ---
 
-**Repositório:** [github.com/ThiagoLachowski/tapaBC2.0](https://github.com/ThiagoLachowski/tapaBC2.0)
+**Repositório:** [github.com/ThiagoLachowski/EcoGestão2.0](https://github.com/ThiagoLachowski/EcoGestão2.0)

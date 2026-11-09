@@ -247,7 +247,7 @@ export const ProfileScreen = () => {
         </AnimRow>
 
         <View style={styles.footerRow}>
-          <Text style={[styles.versionText, { color: theme.colors.textMuted }]}>Caxias Buracos v2.0 · Feito com </Text>
+          <Text style={[styles.versionText, { color: theme.colors.textMuted }]}>EcoGestão v2.0 · Feito com </Text>
           <Feather name="heart" size={10} color="#EF4444" />
           <Text style={[styles.versionText, { color: theme.colors.textMuted }]}> em Caxias</Text>
         </View>

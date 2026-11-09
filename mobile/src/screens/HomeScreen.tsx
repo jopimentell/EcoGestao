@@ -1,9 +1,6 @@
-import React, { useRef, useEffect, useState } from 'react';
-import Reanimated, { FadeInDown } from 'react-native-reanimated';
-import {
-  View, Text, StyleSheet, ScrollView, Animated as RNAnimated, Easing as RNEasing, 
-  Dimensions, Image, TouchableOpacity, Pressable, Modal, TextInput, ActivityIndicator
-} from 'react-native';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
+import { View, Text, StyleSheet, ScrollView, Animated as RNAnimated, Easing as RNEasing,
+  Dimensions, Image, TouchableOpacity, Pressable, Modal, TextInput, ActivityIndicator } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
@@ -13,71 +10,52 @@ import { useAuth } from '../context/AuthContext';
 import { useReports } from '../context/ReportsContext';
 import { useTheme } from '../context/ThemeContext';
 import { UserAvatar } from '../components/UserAvatar';
+import { OccurrenceCounter } from '../components/OccurrenceCounter';
+import { LevelCard } from '../components/LevelCard';
+import { QuickActionCard } from '../components/QuickActionCard';
 import { getRelativeTime } from '../utils/date';
-
-
-
 import { LeafletMap } from '../components/LeafletMap';
-import { theme as staticTheme, darkTheme, lightTheme } from '../theme/tokens';
-
-
-const SEVERITIES = [
-  { label: 'Baixa',   color: '#22C55E' },
-  { label: 'Média',   color: '#F97316' },
-  { label: 'Alta',    color: '#EF4444' },
-  { label: 'Crítica', color: '#A855F7' },
-];
+import { supabase } from '../services/supabase';
+import type { LevelProgress } from '../types';
+import { darkTheme, lightTheme } from '../theme/tokens';
+import {
+  fontSize, fontWeight, lineHeight, radius, spacing,
+  severityColors, type Severity,
+} from '../theme/designSystem';
 
 const { width } = Dimensions.get('window');
 
-const getSeverityColor = (severity: string): string => {
-  switch (severity) {
-    case 'Baixa': return '#22C55E';
-    case 'Média': return '#F97316';
-    case 'Alta': return '#EF4444';
-    case 'Crítica': return '#A855F7';
-    default: return '#F97316';
-  }
-};
+const SEVERITIES: { label: Severity }[] = [
+  { label: 'Baixa' },
+  { label: 'Média' },
+  { label: 'Alta' },
+  { label: 'Crítica' },
+];
 
+const getSeverityColor = (severity: string): string =>
+  severityColors[severity as Severity] ?? severityColors['Média'];
 
-// ── Stat card ─────────────────────────────────────────────────────────────────
-function StatCard({ label, value, icon, delay, theme }: { label: string; value: string | number; icon: string; delay: number; theme: any }) {
-  const anim = useRef(new RNAnimated.Value(0)).current;
-  useEffect(() => {
-    RNAnimated.timing(anim, { toValue: 1, duration: 500, delay, easing: RNEasing.out(RNEasing.quad), useNativeDriver: true }).start();
-  }, [anim, delay]);
-  return (
-    <RNAnimated.View style={[
-      styles.statCard, 
-      { backgroundColor: theme.colors.surface1, borderColor: theme.colors.border },
-      { opacity: anim, transform: [{ translateY: anim.interpolate({ inputRange: [0, 1], outputRange: [16, 0] }) }] }
-    ]}>
-      <View style={styles.statIconWrapper}>
-        <Feather name={icon as any} size={18} color={theme.colors.primary} />
-      </View>
-      <Text style={[styles.statValue, { color: theme.colors.textPrimary }]}>{value}</Text>
-      <Text style={[styles.statLabel, { color: theme.colors.textSecondary }]}>{label}</Text>
-    </RNAnimated.View>
-  );
-}
-
-// ── Empty state ───────────────────────────────────────────────────────────────
-function EmptyState({ theme }: { theme: any }) {
+// ── Empty state ─────────────────────────────────────────────────────────────
+function EmptyState() {
+  const { theme } = useTheme();
   return (
     <View style={[styles.empty, { backgroundColor: theme.colors.surface1, borderColor: theme.colors.border }]}>
-      <Feather name="info" size={40} color={theme.colors.textMuted} style={{ marginBottom: 8 }} />
+      <Feather name="info" size={40} color={theme.colors.textMuted} style={{ marginBottom: spacing.sm }} />
       <Text style={[styles.emptyTitle, { color: theme.colors.textPrimary }]}>Nenhum reporte ainda</Text>
-      <Text style={[styles.emptySub, { color: theme.colors.textSecondary }]}>Seja o primeiro a reportar um buraco em Caxias!</Text>
+      <Text style={[styles.emptySub, { color: theme.colors.textSecondary }]}>
+        Seja o primeiro a reportar um Denúncia em Caxias!
+      </Text>
     </View>
   );
 }
 
-// ── Report mini card ──────────────────────────────────────────
-function ReportMini({ item, ticker, theme, onPress }: { item: any; ticker: number; theme: any; onPress: () => void }) {
-  const CARD_IMAGE_WIDTH = width - (theme.spacing.lg * 2) - (theme.spacing.md * 2) - 20;
+// ── Report mini card ────────────────────────────────────────────────────────
+function ReportMini({ item, onPress }: { item: any; onPress: () => void }) {
+  const { theme } = useTheme();
+  const CARD_IMAGE_WIDTH = width - (spacing.lg * 2) - (spacing.md * 2) - 20;
+
   return (
-    <TouchableOpacity 
+    <TouchableOpacity
       onPress={onPress}
       activeOpacity={0.7}
       style={[styles.reportRow, { backgroundColor: theme.colors.surface1, borderColor: theme.colors.border }]}
@@ -87,15 +65,16 @@ function ReportMini({ item, ticker, theme, onPress }: { item: any; ticker: numbe
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <View style={{ flex: 1 }}>
             <Text style={[styles.reportStreet, { color: theme.colors.textPrimary }]}>{item.street}</Text>
-            <Text style={[styles.reportSub, { color: theme.colors.textSecondary }]}>{item.neighborhood} · {getRelativeTime(item.createdAt)}</Text>
+            <Text style={[styles.reportSub, { color: theme.colors.textSecondary }]}>
+              {item.neighborhood} · {getRelativeTime(item.createdAt)}
+            </Text>
           </View>
           <View style={[styles.sevBadge, { backgroundColor: item.severityColor + '22', borderColor: item.severityColor + '55' }]}>
             <Text style={[styles.sevText, { color: item.severityColor }]}>{item.severity}</Text>
           </View>
         </View>
-
-        {item.images && item.images.length > 0 && (
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.miniGallery} contentContainerStyle={{ gap: 8 }}>
+        {item.images?.length > 0 && (
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.miniGallery} contentContainerStyle={{ gap: spacing.sm }}>
             {item.images.map((img: string, i: number) => (
               <Image key={i} source={{ uri: img }} style={[styles.miniImage, { width: CARD_IMAGE_WIDTH * 0.8 }]} />
             ))}
@@ -106,29 +85,55 @@ function ReportMini({ item, ticker, theme, onPress }: { item: any; ticker: numbe
   );
 }
 
-// ── Screen ────────────────────────────────────────────────────────────────────
+// ── Screen ──────────────────────────────────────────────────────────────────
 export const HomeScreen = () => {
-  const navigation = useNavigation<NativeStackNavigationProp<any>>(); 
+  const navigation = useNavigation<NativeStackNavigationProp<any>>();
   const { user } = useAuth();
   const { reports, loading } = useReports();
   const { theme, toggleTheme, transition, isDark } = useTheme();
+
   const headerAnim = useRef(new RNAnimated.Value(0)).current;
   const [ticker, setTicker] = useState(0);
   const [isMapFullVisible, setIsMapFullVisible] = useState(false);
-  const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeSeverity, setActiveSeverity] = useState<string | null>(null);
+
+  const [totalReports, setTotalReports] = useState(0);
+  const [levelProgress, setLevelProgress] = useState<LevelProgress | null>(null);
+  const [loadingStats, setLoadingStats] = useState(true);
+
+  const loadStats = useCallback(async () => {
+    if (!user?.id) return;
+    setLoadingStats(true);
+    try {
+      const { data: stats } = await supabase.rpc('get_community_stats');
+      if (stats?.[0]) setTotalReports(Number(stats[0].total_reports));
+
+      const { data: lvl, error } = await supabase.rpc('get_user_level_progress', { p_user_id: user.id });
+      if (error) throw error;
+      const row = lvl?.[0];
+      if (row) {
+        setLevelProgress({
+          current: { level: row.current_level, title: row.current_title, min_reports: 0 },
+          next: row.next_level
+            ? { level: row.next_level, title: row.next_title, min_reports: 0 }
+            : null,
+          reportsCount: Number(row.user_reports),
+          reportsToNext: Number(row.reports_to_next),
+          progress: Number(row.progress),
+        });
+      }
+    } catch (err) {
+      console.warn('Falha ao carregar stats da home', err);
+    } finally {
+      setLoadingStats(false);
+    }
+  }, [user?.id]);
 
   const handleReportPress = (reportId: string) => {
     navigation.navigate('ReportDetail', { reportId });
   };
 
-  const handleStatsPress = (filterType: 'all' | 'analyzing' | 'resolved') => {
-  console.log('Navegando com filtro:', filterType); // Para debug
-  navigation.navigate('Comunidade', { filter: filterType });
-};
-
-    // Processar reports com cores e dados completos
   const processedReports = reports.map(report => ({
     ...report,
     severityColor: getSeverityColor(report.severity),
@@ -143,14 +148,12 @@ export const HomeScreen = () => {
     return () => clearInterval(interval);
   }, [headerAnim]);
 
-  // Interpolate background color for smooth transition
+  useEffect(() => { loadStats(); }, [loadStats]);
+
   const backgroundColor = transition.interpolate({
     inputRange: [0, 1],
-    outputRange: [darkTheme.colors.background, lightTheme.colors.background]
+    outputRange: [darkTheme.colors.background, lightTheme.colors.background],
   });
-
-  const resolved = processedReports.filter(r => r.status === 'Resolvido').length;
-  const analyzing = processedReports.filter(r => r.status === 'Em análise' || r.status === 'Novo').length;
 
   const markers = processedReports
     .filter(r => r.latitude && r.longitude)
@@ -160,34 +163,27 @@ export const HomeScreen = () => {
       const q = searchQuery.toLowerCase();
       return r.street.toLowerCase().includes(q) || r.neighborhood?.toLowerCase().includes(q);
     })
-    .map(r => ({ 
-      id: r.id, 
-      lat: r.latitude!, 
-      lng: r.longitude!, 
+    .map(r => ({
+      id: r.id,
+      lat: r.latitude!,
+      lng: r.longitude!,
       color: r.severityColor,
       image: r.images?.[0],
       title: r.street,
-      description: r.neighborhood
+      description: r.neighborhood,
     }));
 
-  // Ranking usando processedReports
   const rankingData = Object.values(
     processedReports.reduce((acc, r) => {
       const userName = r.userName || 'Anônimo';
       if (!acc[userName]) {
-        acc[userName] = { 
-          name: userName, 
-          avatar: r.userAvatar, 
-          isCustom: r.isCustomAvatar, 
-          count: 0 
-        };
+        acc[userName] = { name: userName, avatar: r.userAvatar, isCustom: r.isCustomAvatar, count: 0 };
       }
       acc[userName].count++;
       return acc;
     }, {} as Record<string, any>)
   ).sort((a, b) => b.count - a.count).slice(0, 5);
 
-  // Se estiver carregando, mostrar loading
   if (loading) {
     return (
       <View style={[styles.safe, { backgroundColor: theme.colors.background, justifyContent: 'center', alignItems: 'center' }]}>
@@ -196,8 +192,6 @@ export const HomeScreen = () => {
     );
   }
 
-  const selectedReport = selectedReportId ? processedReports.find(r => r.id === selectedReportId) : null;
-
   if (!user) return null;
 
   return (
@@ -205,14 +199,19 @@ export const HomeScreen = () => {
       <SafeAreaView edges={['top']}>
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
 
+          {/* Header */}
           <RNAnimated.View style={[styles.header, { opacity: headerAnim, transform: [{ translateY: headerAnim.interpolate({ inputRange: [0, 1], outputRange: [-12, 0] }) }] }]}>
             <View>
-              <Text style={[styles.greeting, { color: theme.colors.textSecondary }]}>Olá, {user.name.split(' ')[0]}</Text>
-              <Text style={[styles.headerTitle, { color: theme.colors.textPrimary }]}>Mapa de Buracos</Text>
+              <Text style={[styles.greeting, { color: theme.colors.textSecondary }]}>
+                Olá, {user.name.split(' ')[0]}
+              </Text>
+              <Text style={[styles.headerTitle, { color: theme.colors.textPrimary }]}>
+                EcoGestão
+              </Text>
             </View>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md }}>
-              <TouchableOpacity 
-                onPress={toggleTheme} 
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.md }}>
+              <TouchableOpacity
+                onPress={toggleTheme}
                 style={[styles.themeToggle, { backgroundColor: theme.colors.surface1, borderColor: theme.colors.border }]}
               >
                 <Feather name={isDark ? 'sun' : 'moon'} size={20} color={theme.colors.textPrimary} />
@@ -221,33 +220,42 @@ export const HomeScreen = () => {
             </View>
           </RNAnimated.View>
 
-          <View style={styles.statsRow}>
-            <TouchableOpacity 
-              style={{ flex: 1 }} 
-              onPress={() => handleStatsPress('all')}
-              activeOpacity={0.7}
-            >
-              <StatCard icon="map-pin" label="Reportados" value={processedReports.length} delay={100} theme={theme} />
-            </TouchableOpacity>
-
-            <TouchableOpacity 
-              style={{ flex: 1 }} 
-              onPress={() => handleStatsPress('analyzing')}
-              activeOpacity={0.7}
-            >
-              <StatCard icon="search" label="Em análise" value={analyzing} delay={200} theme={theme} />
-            </TouchableOpacity>
-
-            <TouchableOpacity 
-              style={{ flex: 1 }} 
-              onPress={() => handleStatsPress('resolved')}
-              activeOpacity={0.7}
-            >
-              <StatCard icon="check-circle" label="Resolvidos" value={resolved} delay={300} theme={theme} />
-            </TouchableOpacity>
+          {/* Contador de ocorrências da comunidade */}
+          <View style={styles.section}>
+            <OccurrenceCounter count={totalReports} />
           </View>
 
-          {/* Ranking Section - Usando rankingData */}
+          {/* Gamificação: nível e progresso */}
+          <View style={styles.section}>
+            {loadingStats || !levelProgress ? (
+              <View style={[styles.loadingBox, { backgroundColor: theme.colors.surface1, borderColor: theme.colors.border }]}>
+                <ActivityIndicator color={theme.colors.primary} />
+              </View>
+            ) : (
+              <LevelCard progress={levelProgress} />
+            )}
+          </View>
+
+          {/* Acesso rápido: Mapa + Onde Descartar */}
+          <View style={styles.actionsRow}>
+            <QuickActionCard
+              icon="map"
+              title="Mapa de ocorrências"
+              description="Veja os Denúncias reportados na cidade"
+              accentColor={theme.colors.primary}
+              onPress={() => setIsMapFullVisible(true)}
+            />
+            <View style={{ width: spacing.md }} />
+            <QuickActionCard
+              icon="trash-2"
+              title="Onde descartar"
+              description="Pontos de coleta de resíduos"
+              accentColor="#2E7D32"
+              onPress={() => navigation.navigate('DropOff')}
+            />
+          </View>
+
+          {/* Ranking */}
           <View style={styles.rankingSection}>
             <View style={styles.sectionTitleRow}>
               <Text style={[styles.sectionTitle, { color: theme.colors.textPrimary }]}>Top Colaboradores</Text>
@@ -260,11 +268,13 @@ export const HomeScreen = () => {
                     {i < 3 ? (
                       <Feather name="award" size={16} color={i === 0 ? '#FACC15' : i === 1 ? '#94A3B8' : '#B45309'} />
                     ) : (
-                      <Text style={[styles.rankText, { color: theme.colors.textMuted }]}>#{i+1}</Text>
+                      <Text style={[styles.rankText, { color: theme.colors.textMuted }]}>#{i + 1}</Text>
                     )}
                   </View>
                   <UserAvatar user={{ name: item.name, avatar: item.avatar, isCustomAvatar: item.isCustom }} size={48} />
-                  <Text style={[styles.rankingName, { color: theme.colors.textPrimary }]} numberOfLines={1}>{item.name.split(' ')[0]}</Text>
+                  <Text style={[styles.rankingName, { color: theme.colors.textPrimary }]} numberOfLines={1}>
+                    {item.name.split(' ')[0]}
+                  </Text>
                   <View style={[styles.reportCountBadge, { backgroundColor: theme.colors.primary + '15' }]}>
                     <Text style={[styles.reportCountText, { color: theme.colors.primary }]}>{item.count} reportes</Text>
                   </View>
@@ -273,31 +283,23 @@ export const HomeScreen = () => {
             </ScrollView>
           </View>
 
-          <View style={[styles.sectionHeaderRow, { paddingHorizontal: 24 }]}>
+          {/* Mapa embedded */}
+          <View style={styles.sectionHeaderRow}>
             <Text style={[styles.sectionTitle, { color: theme.colors.textPrimary }]}>Mapa da cidade</Text>
             <TouchableOpacity onPress={() => setIsMapFullVisible(true)} style={styles.seeAllBtn}>
-              <Text style={{ color: theme.colors.primary, fontSize: 13, fontFamily: 'Inter-Medium', marginRight: 4 }}>Ver tela cheia</Text>
+              <Text style={{ color: theme.colors.primary, fontSize: fontSize.sm, fontWeight: fontWeight.medium, marginRight: spacing.xs }}>
+                Ver tela cheia
+              </Text>
               <Feather name="arrow-right" size={14} color={theme.colors.primary} />
             </TouchableOpacity>
           </View>
-          
-          <Pressable 
+
+          <Pressable
             onPress={() => setIsMapFullVisible(true)}
-            style={[styles.mapContainer, { 
-              borderColor: theme.colors.border, 
-              backgroundColor: isDark ? '#1a1a1a' : '#ffffff',
-              shadowColor: isDark ? '#000' : theme.colors.primary,
-              shadowOpacity: isDark ? 0.5 : 0.1,
-              shadowRadius: 15,
-              shadowOffset: { width: 0, height: 8 },
-              elevation: 8
-            }]}
+            style={[styles.mapContainer, { borderColor: theme.colors.border, backgroundColor: isDark ? '#1a1a1a' : '#ffffff' }]}
           >
             <LeafletMap markers={markers} interactive={false} />
-            <LinearGradient
-              colors={['transparent', isDark ? 'rgba(0,0,0,0.4)' : 'rgba(0,0,0,0.1)']}
-              style={styles.mapGradient}
-            />
+            <LinearGradient colors={['transparent', isDark ? 'rgba(0,0,0,0.4)' : 'rgba(0,0,0,0.1)']} style={StyleSheet.absoluteFillObject} />
             <View style={styles.mapOverlay}>
               <View style={[styles.expandBtn, { backgroundColor: theme.colors.primary }]}>
                 <Feather name="maximize-2" size={18} color="#FFF" />
@@ -305,41 +307,48 @@ export const HomeScreen = () => {
             </View>
           </Pressable>
 
-          {/* Full Screen Map Modal */}
-          <Modal
-            visible={isMapFullVisible}
-            animationType="slide"
-            onRequestClose={() => setIsMapFullVisible(false)}
-          >
+          {/* Reportes recentes */}
+          <Text style={[styles.sectionTitle, { color: theme.colors.textPrimary, paddingHorizontal: spacing.lg, marginBottom: spacing.md }]}>
+            Reportes recentes{processedReports.length > 0 ? ` (${processedReports.length})` : ''}
+          </Text>
+          {processedReports.length === 0 ? (
+            <EmptyState />
+          ) : (
+            <View style={styles.reportsList}>
+              {processedReports.slice(0, 5).map(r => (
+                <ReportMini key={r.id} item={r} onPress={() => handleReportPress(r.id)} />
+              ))}
+            </View>
+          )}
+
+          {/* Modal mapa tela cheia */}
+          <Modal visible={isMapFullVisible} animationType="slide" onRequestClose={() => setIsMapFullVisible(false)}>
             <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.background }}>
-              <View style={[styles.modalHeader, { borderBottomColor: 'transparent' }]}>
+              <View style={styles.modalHeader}>
                 <View>
                   <Text style={[styles.modalTitle, { color: theme.colors.textPrimary }]}>Mapa de Caxias-MA</Text>
-                  <Text style={{ color: theme.colors.textSecondary, fontSize: 11, fontFamily: 'Inter-Regular' }}>Navegue pelos reportes ativos</Text>
+                  <Text style={{ color: theme.colors.textSecondary, fontSize: fontSize.xs }}>Navegue pelos reportes ativos</Text>
                 </View>
-                <TouchableOpacity 
-                  onPress={() => { setIsMapFullVisible(false); }}
+                <TouchableOpacity
+                  onPress={() => setIsMapFullVisible(false)}
                   style={[styles.closeBtn, { backgroundColor: theme.colors.surface2, borderColor: theme.colors.border, borderWidth: 1 }]}
                 >
                   <Feather name="x" size={20} color={theme.colors.textPrimary} />
                 </TouchableOpacity>
               </View>
-              <View style={{ flex: 1, position: 'relative' }}>
-                <LeafletMap 
-                  markers={markers} 
-                  interactive={true} 
+              <View style={{ flex: 1 }}>
+                <LeafletMap
+                  markers={markers}
+                  interactive
                   onMarkerPress={(markerId) => {
-                    console.log('Marker pressed:', markerId);
                     navigation.navigate('ReportDetail', { reportId: markerId });
-                    setIsMapFullVisible(false); // Fecha o modal após clicar
+                    setIsMapFullVisible(false);
                   }}
                 />
-                
-                {/* Overlay Search UI */}
                 <View style={styles.mapSearchContainer}>
                   <View style={[styles.mapSearchBox, { backgroundColor: theme.colors.surface1, borderColor: theme.colors.border }]}>
                     <Feather name="search" size={18} color={theme.colors.textMuted} />
-                    <TextInput 
+                    <TextInput
                       style={[styles.mapSearchInput, { color: theme.colors.textPrimary }]}
                       placeholder="Buscar ruas ou bairros..."
                       placeholderTextColor={theme.colors.textMuted}
@@ -348,69 +357,39 @@ export const HomeScreen = () => {
                     />
                   </View>
                 </View>
-
-                {/* Severity Filters */}
                 <View style={styles.mapFiltersContainer}>
                   <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.mapFiltersScroll}>
-                    <TouchableOpacity 
+                    <TouchableOpacity
                       onPress={() => setActiveSeverity(null)}
-                      style={[
-                        styles.filterChip, 
-                        { backgroundColor: !activeSeverity ? theme.colors.primary : theme.colors.surface1, borderColor: theme.colors.border }
-                      ]}
+                      style={[styles.filterChip, {
+                        backgroundColor: !activeSeverity ? theme.colors.primary : theme.colors.surface1,
+                        borderColor: theme.colors.border,
+                      }]}
                     >
                       <Text style={[styles.filterLabel, { color: !activeSeverity ? '#FFF' : theme.colors.textPrimary }]}>Todos</Text>
                     </TouchableOpacity>
-                    {SEVERITIES.map((s, i) => (
-                      <TouchableOpacity 
-                        key={i} 
-                        onPress={() => setActiveSeverity(s.label)}
-                        style={[
-                          styles.filterChip, 
-                          { 
-                            backgroundColor: activeSeverity === s.label ? s.color : theme.colors.surface1, 
-                            borderColor: theme.colors.border 
-                          }
-                        ]}
-                      >
-                        <View style={[styles.filterDot, { backgroundColor: activeSeverity === s.label ? '#FFF' : s.color }]} />
-                        <Text style={[styles.filterLabel, { color: activeSeverity === s.label ? '#FFF' : theme.colors.textPrimary }]}>{s.label}</Text>
-                      </TouchableOpacity>
-                    ))}
+                    {SEVERITIES.map((s) => {
+                      const active = activeSeverity === s.label;
+                      const color = severityColors[s.label];
+                      return (
+                        <TouchableOpacity
+                          key={s.label}
+                          onPress={() => setActiveSeverity(s.label)}
+                          style={[styles.filterChip, {
+                            backgroundColor: active ? color : theme.colors.surface1,
+                            borderColor: theme.colors.border,
+                          }]}
+                        >
+                          <View style={[styles.filterDot, { backgroundColor: active ? '#FFF' : color }]} />
+                          <Text style={[styles.filterLabel, { color: active ? '#FFF' : theme.colors.textPrimary }]}>{s.label}</Text>
+                        </TouchableOpacity>
+                      );
+                    })}
                   </ScrollView>
-                </View>
-
-                {/* Floating Map Controls */}
-                <View style={styles.mapControls}>
-                  <TouchableOpacity style={[styles.mapControlBtn, { backgroundColor: theme.colors.surface1, borderColor: theme.colors.border }]}>
-                    <Feather name="navigation" size={20} color={theme.colors.primary} />
-                  </TouchableOpacity>
-                  <TouchableOpacity style={[styles.mapControlBtn, { backgroundColor: theme.colors.surface1, borderColor: theme.colors.border }]}>
-                    <Feather name="layers" size={20} color={theme.colors.textPrimary} />
-                  </TouchableOpacity>
-                </View>
-              </View>
-
-              <View style={[styles.modalFooter, { backgroundColor: theme.colors.surface1, borderTopColor: theme.colors.border }]}>
-                <View style={styles.footerInfo}>
-                  <Feather name="info" size={14} color={theme.colors.primary} />
-                  <Text style={{ color: theme.colors.textSecondary, fontSize: 12, marginLeft: 6 }}>
-                    Toque nos marcadores para ver detalhes de cada buraco
-                  </Text>
                 </View>
               </View>
             </SafeAreaView>
           </Modal>
-
-          <Text style={[styles.sectionTitle, { color: theme.colors.textPrimary, paddingHorizontal: 24, marginBottom: 12 }]}>
-            Reportes recentes{processedReports.length > 0 ? ` (${processedReports.length})` : ''}
-          </Text>
-          {processedReports.length === 0
-            ? <EmptyState theme={theme} />
-            : <View style={styles.reportsList}>
-              {processedReports.slice(0, 5).map(r => <ReportMini key={r.id} item={{...r, severityColor: getSeverityColor(r.severity)}} ticker={ticker} theme={theme} onPress={() => handleReportPress(r.id)} />)}
-            </View>
-          }
 
         </ScrollView>
       </SafeAreaView>
@@ -420,70 +399,63 @@ export const HomeScreen = () => {
 
 const styles = StyleSheet.create({
   safe: { flex: 1 },
-  content: { paddingBottom: 32 },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 24, paddingTop: 16, marginBottom: 24 },
-  greeting: { fontSize: 12, fontFamily: 'Inter-Regular', marginBottom: 2 },
-  headerTitle: { fontSize: 22, fontFamily: 'Inter-SemiBold' },
-  themeToggle: { width: 44, height: 44, borderRadius: 22, justifyContent: 'center', alignItems: 'center', borderWidth: 1 },
-  statsRow: { flexDirection: 'row', paddingHorizontal: 24, gap: 8, marginBottom: 24 },
-  statCard: { flex: 1, borderRadius: 12, padding: 16, alignItems: 'center', borderWidth: 1 },
-  statIconWrapper: { height: 28, justifyContent: 'center', alignItems: 'center', marginBottom: 4 },
-  statValue: { fontSize: 20, fontFamily: 'Inter-SemiBold' },
-  statLabel: { fontSize: 10, fontFamily: 'Inter-Regular', marginTop: 2, textAlign: 'center' },
-  sectionTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 24, marginBottom: 12 },
-  sectionHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
+  content: { paddingBottom: spacing.xxxl },
+  header: {
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+    paddingHorizontal: spacing.lg, paddingTop: spacing.lg, marginBottom: spacing.xl,
+  },
+  greeting: { fontSize: fontSize.sm, marginBottom: spacing.xxs },
+  headerTitle: { fontSize: fontSize.xxl, fontWeight: fontWeight.bold },
+  themeToggle: { width: 44, height: 44, borderRadius: radius.pill, justifyContent: 'center', alignItems: 'center', borderWidth: 1 },
+
+  section: { paddingHorizontal: spacing.lg, marginBottom: spacing.lg },
+  loadingBox: { borderRadius: radius.lg, padding: spacing.xxl, alignItems: 'center', borderWidth: 1 },
+  actionsRow: { flexDirection: 'row', paddingHorizontal: spacing.lg, marginBottom: spacing.xl },
+
+  sectionTitleRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingHorizontal: spacing.lg, marginBottom: spacing.md },
+  sectionHeaderRow: {
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+    paddingHorizontal: spacing.lg, marginBottom: spacing.md,
+  },
   seeAllBtn: { flexDirection: 'row', alignItems: 'center' },
-  sectionTitle: { fontSize: 15, fontFamily: 'Inter-SemiBold' },
-  mapContainer: { 
-    marginHorizontal: 24, 
-    height: 220, 
-    borderRadius: 28, 
-    overflow: 'hidden', 
-    marginBottom: 24, 
-    borderWidth: 1, 
-    position: 'relative' 
-  },
-  mapGradient: {
-    ...StyleSheet.absoluteFillObject,
-  },
-  reportsList: { paddingHorizontal: 24, gap: 8 },
-  reportRow: { flexDirection: 'row', alignItems: 'center', borderRadius: 12, padding: 16, borderWidth: 1, gap: 12 },
+  sectionTitle: { fontSize: fontSize.md, fontWeight: fontWeight.semibold },
+
+  mapContainer: { marginHorizontal: spacing.lg, height: 220, borderRadius: radius.xl, overflow: 'hidden', marginBottom: spacing.xl, borderWidth: 1, position: 'relative' },
+  mapOverlay: { ...StyleSheet.absoluteFillObject, justifyContent: 'flex-end', alignItems: 'flex-end', padding: spacing.lg },
+  expandBtn: { width: 44, height: 44, borderRadius: radius.pill, justifyContent: 'center', alignItems: 'center' },
+
+  reportsList: { paddingHorizontal: spacing.lg, gap: spacing.sm },
+  reportRow: { flexDirection: 'row', alignItems: 'center', borderRadius: radius.md, padding: spacing.lg, borderWidth: 1, gap: spacing.md },
   dot: { width: 8, height: 8, borderRadius: 4 },
-  reportStreet: { fontFamily: 'Inter-Medium', fontSize: 13 },
-  reportSub: { fontSize: 11, fontFamily: 'Inter-Regular', marginTop: 1 },
-  miniGallery: { marginTop: 10, paddingRight: 10 },
-  miniImage: { height: 120, borderRadius: 8 },
-  sevBadge: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 9999, borderWidth: 1, marginLeft: 8 },
-  sevText: { fontSize: 10, fontFamily: 'Inter-Medium' },
-  empty: { marginHorizontal: 24, alignItems: 'center', padding: 32, borderRadius: 16, borderWidth: 1, gap: 8 },
-  emptyTitle: { fontFamily: 'Inter-SemiBold', fontSize: 16 },
-  emptySub: { fontFamily: 'Inter-Regular', fontSize: 13, textAlign: 'center', lineHeight: 20 },
-  mapOverlay: { ...StyleSheet.absoluteFillObject, justifyContent: 'flex-end', alignItems: 'flex-end', padding: 16 },
-  expandBtn: { width: 44, height: 44, borderRadius: 22, justifyContent: 'center', alignItems: 'center', elevation: 4, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.2, shadowRadius: 4 },
-  modalHeader: { height: 80, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 24, borderBottomWidth: 1 },
-  modalTitle: { fontSize: 20, fontFamily: 'Inter-SemiBold' },
-  closeBtn: { width: 40, height: 40, borderRadius: 20, justifyContent: 'center', alignItems: 'center' },
-  modalFooter: { padding: 16, borderTopWidth: 1, paddingBottom: 24 },
-  rankingSection: { marginBottom: 24 },
-  rankingScroll: { paddingHorizontal: 24, gap: 12 },
-  rankingCard: { width: 120, borderRadius: 20, padding: 16, alignItems: 'center', borderWidth: 1, position: 'relative' },
-  rankBadge: { position: 'absolute', top: 4, left: 4 },
-  rankText: { fontSize: 12, fontFamily: 'Inter-SemiBold' },
-  rankingName: { fontSize: 13, fontFamily: 'Inter-SemiBold', marginTop: 8, marginBottom: 4, textAlign: 'center' },
-  reportCountBadge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8, justifyContent: 'center', alignItems: 'center' },
-  reportCountText: { fontSize: 10, fontFamily: 'Inter-Medium', textAlign: 'center' },
-  
-  // Modal Map UI
-  mapSearchContainer: { position: 'absolute', top: 16, left: 20, right: 20, zIndex: 10 },
-  mapSearchBox: { flexDirection: 'row', alignItems: 'center', height: 48, borderRadius: 12, paddingHorizontal: 16, borderWidth: 1, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 8, elevation: 5 },
-  mapSearchPlaceholder: { marginLeft: 12, fontSize: 14, fontFamily: 'Inter-Regular' },
-  mapSearchInput: { flex: 1, marginLeft: 12, fontSize: 14, fontFamily: 'Inter-Regular', height: '100%' },
-  mapFiltersContainer: { position: 'absolute', bottom: 20, left: 0, right: 0, zIndex: 10 },
-  mapFiltersScroll: { paddingHorizontal: 20, paddingVertical: 10, gap: 8 },
-  filterChip: { flexDirection: 'row', alignItems: 'center', height: 40, borderRadius: 20, paddingHorizontal: 16, borderWidth: 1, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 6, elevation: 4 },
-  filterDot: { width: 8, height: 8, borderRadius: 4, marginRight: 8 },
-  filterLabel: { fontSize: 12, fontFamily: 'Inter-Medium' },
-  mapControls: { position: 'absolute', top: 80, right: 20, gap: 10, zIndex: 10 },
-  mapControlBtn: { width: 44, height: 44, borderRadius: 12, justifyContent: 'center', alignItems: 'center', borderWidth: 1, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 3 },
-  footerInfo: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center' },
+  reportStreet: { fontSize: fontSize.sm, fontWeight: fontWeight.medium },
+  reportSub: { fontSize: fontSize.xs, marginTop: spacing.xxs },
+  miniGallery: { marginTop: spacing.sm },
+  miniImage: { height: 120, borderRadius: radius.sm },
+  sevBadge: { paddingHorizontal: spacing.sm, paddingVertical: spacing.xxs, borderRadius: radius.pill, borderWidth: 1, marginLeft: spacing.sm },
+  sevText: { fontSize: fontSize.xs, fontWeight: fontWeight.medium },
+
+  empty: { marginHorizontal: spacing.lg, alignItems: 'center', padding: spacing.xxl, borderRadius: radius.lg, borderWidth: 1, gap: spacing.sm },
+  emptyTitle: { fontWeight: fontWeight.semibold, fontSize: fontSize.md },
+  emptySub: { fontSize: fontSize.sm, textAlign: 'center', lineHeight: fontSize.sm * lineHeight.normal },
+
+  rankingSection: { marginBottom: spacing.xl },
+  rankingScroll: { paddingHorizontal: spacing.lg, gap: spacing.md },
+  rankingCard: { width: 120, borderRadius: radius.lg, padding: spacing.lg, alignItems: 'center', borderWidth: 1, position: 'relative' },
+  rankBadge: { position: 'absolute', top: spacing.xs, left: spacing.xs },
+  rankText: { fontSize: fontSize.xs, fontWeight: fontWeight.semibold },
+  rankingName: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold, marginTop: spacing.sm, marginBottom: spacing.xs, textAlign: 'center' },
+  reportCountBadge: { paddingHorizontal: spacing.sm, paddingVertical: spacing.xs, borderRadius: radius.sm },
+  reportCountText: { fontSize: fontSize.xs, fontWeight: fontWeight.medium },
+
+  modalHeader: { height: 80, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing.lg },
+  modalTitle: { fontSize: fontSize.xl, fontWeight: fontWeight.semibold },
+  closeBtn: { width: 40, height: 40, borderRadius: radius.pill, justifyContent: 'center', alignItems: 'center' },
+  mapSearchContainer: { position: 'absolute', top: spacing.lg, left: spacing.xl, right: spacing.xl, zIndex: 10 },
+  mapSearchBox: { flexDirection: 'row', alignItems: 'center', height: 48, borderRadius: radius.md, paddingHorizontal: spacing.lg, borderWidth: 1 },
+  mapSearchInput: { flex: 1, marginLeft: spacing.md, fontSize: fontSize.sm, height: '100%' },
+  mapFiltersContainer: { position: 'absolute', bottom: spacing.xl, left: 0, right: 0, zIndex: 10 },
+  mapFiltersScroll: { paddingHorizontal: spacing.xl, paddingVertical: spacing.sm, gap: spacing.sm },
+  filterChip: { flexDirection: 'row', alignItems: 'center', height: 40, borderRadius: radius.pill, paddingHorizontal: spacing.lg, borderWidth: 1 },
+  filterDot: { width: 8, height: 8, borderRadius: 4, marginRight: spacing.sm },
+  filterLabel: { fontSize: fontSize.xs, fontWeight: fontWeight.medium },
 });

@@ -99,7 +99,7 @@ export function LoginScreen({ navigation }: Props) {
               <View style={[styles.logoCircle, { backgroundColor: theme.colors.primary + '15', borderColor: theme.colors.primary + '44' }]}>
                 <Feather name="map-pin" size={32} color={theme.colors.primary} />
               </View>
-              <Text style={[styles.logoTitle, { color: theme.colors.textPrimary }]}>Caxias Buracos</Text>
+              <Text style={[styles.logoTitle, { color: theme.colors.textPrimary }]}>EcoGestão</Text>
               <Text style={[styles.logoSub, { color: theme.colors.textSecondary }]}>Conecte-se para contribuir</Text>
             </View>
 
@@ -169,14 +169,36 @@ const styles = StyleSheet.create({
   safe:     { flex: 1, backgroundColor: staticTheme.colors.background },
   glow:     { position: 'absolute', top: -50, left: '5%', width: '90%', height: 350, borderRadius: 200 },
   scroll:   { flexGrow: 1, justifyContent: 'center', padding: staticTheme.spacing.lg },
-  container:{ gap: staticTheme.spacing.lg },
+  
+  container: { 
+    gap: staticTheme.spacing.lg,
+    width: '100%',          // 👈 NOVO: Ocupa 100% da tela no celular
+    maxWidth: 900,          // 👈 NOVO: Limita a 900px no navegador
+    alignSelf: 'center',    // 👈 NOVO: Centraliza o container na tela do PC
+  },
 
-  brand:       { alignItems: 'center', gap: 8 },
+  brand: { 
+    alignItems: 'center', 
+    gap: 8,
+    width: '100%',          // 👈 NOVO
+    maxWidth: 480,          // 👈 NOVO: Evita que a logo fique perdida em telas grandes
+    alignSelf: 'center',    // 👈 NOVO
+  },
   logoCircle:  { width: 72, height: 72, borderRadius: 36, backgroundColor: 'rgba(249,115,22,0.12)', borderWidth: 1.5, borderColor: 'rgba(249,115,22,0.4)', justifyContent: 'center', alignItems: 'center' },
   logoTitle:   { fontSize: 24, color: staticTheme.colors.textPrimary, fontFamily: staticTheme.typography.fontFamily.semiBold },
   logoSub:     { fontSize: 13, color: staticTheme.colors.textSecondary, fontFamily: staticTheme.typography.fontFamily.regular },
 
-  card:        { backgroundColor: staticTheme.colors.surface1, borderRadius: staticTheme.radii.xl, padding: staticTheme.spacing.lg, borderWidth: 1, borderColor: staticTheme.colors.border, gap: staticTheme.spacing.md },
+  card: { 
+    backgroundColor: staticTheme.colors.surface1, 
+    borderRadius: staticTheme.radii.xl, 
+    padding: staticTheme.spacing.lg, 
+    borderWidth: 1, 
+    borderColor: staticTheme.colors.border, 
+    gap: staticTheme.spacing.md,
+    width: '100%',          // 👈 NOVO
+    maxWidth: 480,          // 👈 NOVO: Formulário fica elegante (estilo SaaS) e não estica demais
+    alignSelf: 'center',    // 👈 NOVO
+  },
   cardTitle:   { fontSize: 18, color: staticTheme.colors.textPrimary, fontFamily: staticTheme.typography.fontFamily.semiBold, marginBottom: 4 },
 
   fieldWrapper:{ gap: 6 },
@@ -190,7 +212,14 @@ const styles = StyleSheet.create({
 
   submitBtn:   { marginTop: 4 },
 
-  dividerRow:  { flexDirection: 'row', alignItems: 'center', gap: staticTheme.spacing.sm },
+  dividerRow:  { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    gap: staticTheme.spacing.sm,
+    width: '100%',          // 👈 NOVO
+    maxWidth: 480,          // 👈 NOVO
+    alignSelf: 'center',    // 👈 NOVO
+  },
   dividerLine: { flex: 1, height: 1, backgroundColor: staticTheme.colors.border },
   dividerText: { color: staticTheme.colors.textMuted, fontSize: 12, fontFamily: staticTheme.typography.fontFamily.regular },
 
@@ -198,4 +227,3 @@ const styles = StyleSheet.create({
   registerText:   { color: staticTheme.colors.textSecondary, fontSize: 14, fontFamily: staticTheme.typography.fontFamily.regular },
   registerHighlight: { color: staticTheme.colors.primary, fontFamily: staticTheme.typography.fontFamily.semiBold },
 });
-

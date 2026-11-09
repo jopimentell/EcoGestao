@@ -93,7 +93,7 @@ export function FullMapScreen() {
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
           <Feather name="arrow-left" size={24} color={theme.colors.textPrimary} />
         </TouchableOpacity>
-        <Text style={[styles.title, { color: theme.colors.textPrimary }]}>Mapa de Buracos</Text>
+        <Text style={[styles.title, { color: theme.colors.textPrimary }]}>Mapa de Denúncias</Text>
         <View style={{ width: 40 }} />
       </View>
 
@@ -161,7 +161,7 @@ export function FullMapScreen() {
         <View style={[styles.statsBadge, { backgroundColor: theme.colors.surface1, borderColor: theme.colors.border }]}>
           <Feather name="map-pin" size={14} color={theme.colors.primary} />
           <Text style={[styles.statsText, { color: theme.colors.textPrimary }]}>
-            {markers.length} buraco{markers.length !== 1 ? 's' : ''} encontrado{markers.length !== 1 ? 's' : ''}
+            {markers.length} Denúncia{markers.length !== 1 ? 's' : ''} encontrado{markers.length !== 1 ? 's' : ''}
           </Text>
         </View>
       </View>
