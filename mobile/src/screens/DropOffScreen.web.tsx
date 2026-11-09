@@ -20,6 +20,9 @@ import {
 
 const { DropOffScreen: MobileDropOffScreen } = require('./DropOffScreen.tsx') as typeof import('./DropOffScreen');
 
+// Zoom do mapa após o usuário marcar o local no cadastro
+const PICKED_ZOOM = 16;
+
 /* ---------- Card ---------- */
 function PointCard({ point, highlight, onPress }: { point: DropOffPoint; highlight: string | null; onPress: () => void }) {
   const { theme } = useTheme();
@@ -72,10 +75,11 @@ function FormDialog({ visible, onClose, onSubmit }: {
   const [name, setName] = useState('');
   const [address, setAddress] = useState('');
   const [selected, setSelected] = useState<string[]>([]);
+  const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
-  const reset = () => { setName(''); setAddress(''); setSelected([]); setError(''); };
+  const reset = () => { setName(''); setAddress(''); setSelected([]); setLocation(null); setError(''); };
   const close = () => { reset(); onClose(); };
 
   const toggleMaterial = (mat: string) =>
@@ -85,9 +89,10 @@ function FormDialog({ visible, onClose, onSubmit }: {
   const handleSubmit = async () => {
     if (!name.trim() || !address.trim()) { setError('Preencha nome e endereço.'); return; }
     if (selected.length === 0) { setError('Selecione ao menos um material.'); return; }
+    if (!location) { setError('Clique no mapa para marcar o local do ponto.'); return; }
     try {
       setSubmitting(true);
-      await onSubmit({ name, address, accepted_materials: selected });
+      await onSubmit({ name, address, accepted_materials: selected, latitude: location.lat, longitude: location.lng });
       close();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Não foi possível cadastrar.');
@@ -138,6 +143,22 @@ function FormDialog({ visible, onClose, onSubmit }: {
                 );
               })}
             </View>
+          </View>
+
+          <View style={styles.field}>
+            <Text style={[styles.label, { color: theme.colors.textSecondary }]}>Localização</Text>
+            <View style={[styles.pickerBox, { borderColor: location ? theme.colors.primary : theme.colors.border }]}>
+              <LeafletMap
+                center={location ?? undefined}
+                zoom={location ? PICKED_ZOOM : undefined}
+                markers={location ? [{ id: 'novo-ponto', lat: location.lat, lng: location.lng, color: theme.colors.primary }] : []}
+                onLocationSelect={(lat, lng) => setLocation({ lat, lng })}
+                interactive
+              />
+            </View>
+            <Text style={[styles.pickerHint, { color: location ? theme.colors.primary : theme.colors.textMuted }]}>
+              {location ? 'Local marcado. Clique de novo para ajustar.' : 'Clique no mapa para marcar o local do ponto.'}
+            </Text>
           </View>
 
           {!!error && (
@@ -393,6 +414,8 @@ const styles = StyleSheet.create({
   dialogTitle: { fontSize: fontSize.xl, fontWeight: fontWeight.bold },
   closeBtn: { padding: spacing.xs },
   field: { gap: spacing.xs },
+  pickerBox: { height: layout.cardImageHeight, borderRadius: radius.md, overflow: 'hidden', borderWidth: layout.borderWidth },
+  pickerHint: { fontSize: fontSize.xs },
   label: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold },
   input: {
     height: layout.controlHeight, borderRadius: radius.sm, borderWidth: layout.borderWidth,

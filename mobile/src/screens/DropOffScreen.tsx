@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   ActivityIndicator, Alert, FlatList, Modal, Pressable,
-  StyleSheet, Text, TextInput, View,
+  ScrollView, StyleSheet, Text, TextInput, View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
@@ -15,6 +15,9 @@ import {
   fontSize, fontWeight, iconSize, layout, lineHeight, materials, onAccentColor, radius,
   severityColors, shadows, spacing,
 } from '../theme/designSystem';
+
+// Zoom do mapa após o usuário marcar o local no cadastro
+const PICKED_ZOOM = 16;
 
 /* ---------- Card ---------- */
 const PointCard: React.FC<{ point: DropOffPoint; onPress: () => void }> = ({ point, onPress }) => {
@@ -66,9 +69,10 @@ const FormModal: React.FC<FormModalProps> = ({ visible, onClose, onSubmit }) => 
   const [name, setName] = useState('');
   const [address, setAddress] = useState('');
   const [selected, setSelected] = useState<string[]>([]);
+  const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  const reset = () => { setName(''); setAddress(''); setSelected([]); };
+  const reset = () => { setName(''); setAddress(''); setSelected([]); setLocation(null); };
 
   const toggleMaterial = (mat: string) =>
     setSelected((prev) => (prev.includes(mat) ? prev.filter((m) => m !== mat) : [...prev, mat]));
@@ -76,9 +80,10 @@ const FormModal: React.FC<FormModalProps> = ({ visible, onClose, onSubmit }) => 
   const handleSubmit = async () => {
     if (!name.trim() || !address.trim()) return Alert.alert('Preencha nome e endereço');
     if (selected.length === 0) return Alert.alert('Selecione ao menos um material');
+    if (!location) return Alert.alert('Toque no mapa para marcar o local');
     try {
       setSubmitting(true);
-      await onSubmit({ name, address, accepted_materials: selected });
+      await onSubmit({ name, address, accepted_materials: selected, latitude: location.lat, longitude: location.lng });
       reset();
       onClose();
     } catch (err) {
@@ -92,6 +97,7 @@ const FormModal: React.FC<FormModalProps> = ({ visible, onClose, onSubmit }) => 
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
       <View style={styles.modalBackdrop}>
         <View style={[styles.modalSheet, { backgroundColor: theme.colors.surface1 }]}>
+          <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
           <View style={[styles.modalHandle, { backgroundColor: theme.colors.border }]} />
           <Text style={[styles.modalTitle, { color: theme.colors.textPrimary }]}>Novo ponto de coleta</Text>
 
@@ -137,6 +143,20 @@ const FormModal: React.FC<FormModalProps> = ({ visible, onClose, onSubmit }) => 
             })}
           </View>
 
+          <Text style={[styles.label, { color: theme.colors.textSecondary }]}>Localização</Text>
+          <View style={[styles.pickerBox, { borderColor: location ? theme.colors.primary : theme.colors.border }]}>
+            <LeafletMap
+              center={location ?? undefined}
+              zoom={location ? PICKED_ZOOM : undefined}
+              markers={location ? [{ id: 'novo-ponto', lat: location.lat, lng: location.lng, color: theme.colors.primary }] : []}
+              onLocationSelect={(lat, lng) => setLocation({ lat, lng })}
+              interactive
+            />
+          </View>
+          <Text style={[styles.pickerHint, { color: location ? theme.colors.primary : theme.colors.textMuted }]}>
+            {location ? 'Local marcado. Toque de novo para ajustar.' : 'Toque no mapa para marcar o local do ponto.'}
+          </Text>
+
           <Pressable
             onPress={handleSubmit}
             disabled={submitting}
@@ -152,6 +172,7 @@ const FormModal: React.FC<FormModalProps> = ({ visible, onClose, onSubmit }) => 
           <Pressable onPress={onClose} style={styles.cancelBtn}>
             <Text style={[styles.cancelText, { color: theme.colors.textMuted }]}>Cancelar</Text>
           </Pressable>
+          </ScrollView>
         </View>
       </View>
     </Modal>
@@ -308,7 +329,9 @@ const styles = StyleSheet.create({
   chipText: { fontSize: fontSize.xs },
 
   modalBackdrop: { flex: 1, backgroundColor: 'rgba(15,23,42,0.55)', justifyContent: 'flex-end' },
-  modalSheet: { borderTopLeftRadius: radius.xl, borderTopRightRadius: radius.xl, padding: spacing.lg, paddingBottom: spacing.xxl },
+  modalSheet: { maxHeight: '92%', borderTopLeftRadius: radius.xl, borderTopRightRadius: radius.xl, padding: spacing.lg, paddingBottom: spacing.xxl },
+  pickerBox: { height: layout.cardImageHeight, borderRadius: radius.md, overflow: 'hidden', borderWidth: layout.borderWidth },
+  pickerHint: { fontSize: fontSize.xs, marginTop: spacing.xs },
   modalHandle: { alignSelf: 'center', width: 44, height: 5, borderRadius: radius.pill, marginBottom: spacing.md },
   modalTitle: { fontSize: fontSize.xl, fontWeight: fontWeight.bold, marginBottom: spacing.md },
   label: { fontSize: fontSize.sm, fontWeight: fontWeight.semibold, marginTop: spacing.md, marginBottom: spacing.xs },
