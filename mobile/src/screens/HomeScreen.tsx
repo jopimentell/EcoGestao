@@ -187,7 +187,7 @@ export const HomeScreen = () => {
 
   return (
     <RNAnimated.View style={[styles.safe, { backgroundColor }]}>
-      <SafeAreaView edges={['top']}>
+      <SafeAreaView style={styles.safe} edges={['top']}>
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
 
           {/* Header */}

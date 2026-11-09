@@ -4,6 +4,7 @@ import React, { useMemo, useState } from 'react';
 import { ActivityIndicator, Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useDropOff } from '../context/DropOffContext';
 import { useTheme } from '../context/ThemeContext';
 import { LeafletMap } from '../components/LeafletMap';
@@ -20,10 +21,19 @@ import {
 const { DropOffScreen: MobileDropOffScreen } = require('./DropOffScreen.tsx') as typeof import('./DropOffScreen');
 
 /* ---------- Card ---------- */
-function PointCard({ point, highlight }: { point: DropOffPoint; highlight: string | null }) {
+function PointCard({ point, highlight, onPress }: { point: DropOffPoint; highlight: string | null; onPress: () => void }) {
   const { theme } = useTheme();
   return (
-    <View style={[styles.card, { backgroundColor: theme.colors.surface1, borderColor: theme.colors.border }, shadows.sm]}>
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="link"
+      accessibilityLabel={`Ver detalhes de ${point.name}`}
+      style={({ hovered }: WebPressableState) => [
+        styles.card,
+        { backgroundColor: theme.colors.surface1, borderColor: hovered ? theme.colors.primary : theme.colors.border },
+        shadows.sm,
+      ]}
+    >
       <View style={styles.cardHeader}>
         <View style={[styles.pinIcon, { backgroundColor: theme.colors.primary + tint.subtle }]}>
           <Feather name="map-pin" size={iconSize.md} color={theme.colors.primary} />
@@ -50,7 +60,7 @@ function PointCard({ point, highlight }: { point: DropOffPoint; highlight: strin
           })}
         </View>
       )}
-    </View>
+    </Pressable>
   );
 }
 
@@ -157,13 +167,15 @@ function FormDialog({ visible, onClose, onSubmit }: {
 
 /* ---------- Tela desktop ---------- */
 function DropOffDesktop() {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NativeStackNavigationProp<any>>();
   const { theme } = useTheme();
   const { points, loading, error, add } = useDropOff();
   const [modalOpen, setModalOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [material, setMaterial] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
+
+  const openPoint = (pointId: string) => navigation.navigate('DropOffDetail', { pointId });
 
   const materialCounts = useMemo(() => {
     const map: Record<string, number> = {};
@@ -235,7 +247,7 @@ function DropOffDesktop() {
     main = (
       <DesktopCard style={styles.mapCard}>
         <View style={[styles.mapBox, { borderColor: theme.colors.border }]}>
-          <LeafletMap markers={markers} interactive />
+          <LeafletMap markers={markers} interactive onMarkerPress={openPoint} />
         </View>
         {withoutCoords > 0 && (
           <Text style={[styles.mapNote, { color: theme.colors.textMuted }]}>
@@ -251,7 +263,7 @@ function DropOffDesktop() {
         minItemWidth={layout.sidePanelWidth - spacing.xxxl}
         maxColumns={3}
         keyExtractor={(p) => p.id}
-        renderItem={(p) => <PointCard point={p} highlight={material} />}
+        renderItem={(p) => <PointCard point={p} highlight={material} onPress={() => openPoint(p.id)} />}
       />
     );
   }

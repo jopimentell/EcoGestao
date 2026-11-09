@@ -12,6 +12,7 @@ import { FullMapScreen } from '../screens/FullMapScreen';
 import { ReportDetailScreen } from '../screens/ReportDetailScreen';
 import { useTheme } from '../context/ThemeContext';
 import { DropOffScreen } from '../screens/DropOffScreen';
+import { DropOffDetailScreen } from '../screens/DropOffDetailScreen';
 import { LevelsScreen } from '../screens/LevelsScreen';
 
 const Tab = createBottomTabNavigator();
@@ -24,6 +25,7 @@ function HomeStack() {
       <Stack.Screen name="HomeMain" component={HomeScreen} />
       <Stack.Screen name="ReportDetail" component={ReportDetailScreen} />
       <Stack.Screen name="DropOff" component={DropOffScreen} options={{ headerShown: false }}/>
+      <Stack.Screen name="DropOffDetail" component={DropOffDetailScreen} />
       <Stack.Screen name="Levels" component={LevelsScreen} />
     </Stack.Navigator>
   );

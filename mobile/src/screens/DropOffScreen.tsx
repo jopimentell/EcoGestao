@@ -6,6 +6,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useDropOff } from '../context/DropOffContext';
 import { useTheme } from '../context/ThemeContext';
 import { LeafletMap } from '../components/LeafletMap';
@@ -16,14 +17,20 @@ import {
 } from '../theme/designSystem';
 
 /* ---------- Card ---------- */
-const PointCard: React.FC<{ point: DropOffPoint }> = ({ point }) => {
+const PointCard: React.FC<{ point: DropOffPoint; onPress: () => void }> = ({ point, onPress }) => {
   const { theme } = useTheme();
   return (
-    <View style={[
-      styles.card,
-      { backgroundColor: theme.colors.surface1, borderColor: theme.colors.border },
-      shadows.sm,
-    ]}>
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={`Ver detalhes de ${point.name}`}
+      style={({ pressed }) => [
+        styles.card,
+        { backgroundColor: theme.colors.surface1, borderColor: theme.colors.border },
+        shadows.sm,
+        pressed && { opacity: 0.85 },
+      ]}
+    >
       <View style={styles.cardHeader}>
         <View style={[styles.pinIcon, { backgroundColor: theme.colors.primary + '18' }]}>
           <Feather name="map-pin" size={iconSize.md} color={theme.colors.primary} />
@@ -32,6 +39,7 @@ const PointCard: React.FC<{ point: DropOffPoint }> = ({ point }) => {
           <Text style={[styles.cardTitle, { color: theme.colors.textPrimary }]}>{point.name}</Text>
           <Text style={[styles.cardAddress, { color: theme.colors.textSecondary }]}>{point.address}</Text>
         </View>
+        <Feather name="chevron-right" size={iconSize.md} color={theme.colors.textMuted} />
       </View>
       {point.accepted_materials.length > 0 && (
         <View style={styles.chipsRow}>
@@ -42,7 +50,7 @@ const PointCard: React.FC<{ point: DropOffPoint }> = ({ point }) => {
           ))}
         </View>
       )}
-    </View>
+    </Pressable>
   );
 };
 
@@ -152,11 +160,13 @@ const FormModal: React.FC<FormModalProps> = ({ visible, onClose, onSubmit }) => 
 
 /* ---------- Tela ---------- */
 export const DropOffScreen: React.FC = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NativeStackNavigationProp<any>>();
   const { theme } = useTheme();
   const { points, loading, error, add } = useDropOff();
   const [modalOpen, setModalOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
+
+  const openPoint = (pointId: string) => navigation.navigate('DropOffDetail', { pointId });
 
   const markers = points
     .filter((p) => p.latitude != null && p.longitude != null)
@@ -211,7 +221,7 @@ export const DropOffScreen: React.FC = () => {
       ) : viewMode === 'map' ? (
         <View style={styles.mapWrap}>
           <View style={[styles.mapBox, { borderColor: theme.colors.border }]}>
-            <LeafletMap markers={markers} interactive />
+            <LeafletMap markers={markers} interactive onMarkerPress={openPoint} />
           </View>
           {withoutCoords > 0 && (
             <Text style={[styles.mapNote, { color: theme.colors.textMuted }]}>
@@ -223,7 +233,7 @@ export const DropOffScreen: React.FC = () => {
         <FlatList
           data={points}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <PointCard point={item} />}
+          renderItem={({ item }) => <PointCard point={item} onPress={() => openPoint(item.id)} />}
           ItemSeparatorComponent={() => <View style={{ height: spacing.md }} />}
           contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxxl * 2 }}
           ListEmptyComponent={

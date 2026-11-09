@@ -12,6 +12,7 @@ import { ProfileScreen } from '../screens/ProfileScreen';
 import { FullMapScreen } from '../screens/FullMapScreen';
 import { ReportDetailScreen } from '../screens/ReportDetailScreen';
 import { DropOffScreen } from '../screens/DropOffScreen';
+import { DropOffDetailScreen } from '../screens/DropOffDetailScreen';
 import { LevelsScreen } from '../screens/LevelsScreen';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
@@ -33,6 +34,7 @@ function HomeStack() {
       <Stack.Screen name="HomeMain" component={HomeScreen} />
       <Stack.Screen name="ReportDetail" component={ReportDetailScreen} />
       <Stack.Screen name="DropOff" component={DropOffScreen} />
+      <Stack.Screen name="DropOffDetail" component={DropOffDetailScreen} />
       <Stack.Screen name="Levels" component={LevelsScreen} />
     </Stack.Navigator>
   );
@@ -108,7 +110,7 @@ function Sidebar({ state, navigation }: BottomTabBarProps) {
   const nestedName = nested && nestedIndex !== undefined
     ? nested.routes[nestedIndex]?.name
     : (focused.params as { screen?: string } | undefined)?.screen;
-  const isDropOff = focused.name === 'Início' && nestedName === 'DropOff';
+  const isDropOff = focused.name === 'Início' && (nestedName === 'DropOff' || nestedName === 'DropOffDetail');
   const isLevels = nestedName === 'Levels';
   const isShortcut = isDropOff || isLevels;
 
