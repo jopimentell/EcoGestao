@@ -1,17 +1,20 @@
 // mobile/src/screens/DropOffDetailScreen.tsx
 // Detalhe de um ponto de coleta ("Onde descartar"). Usado no app e na web (conteúdo centralizado no desktop).
-import React from 'react';
-import { Linking, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, Linking, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Text } from '../components/Typography';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Icon } from '../components/Icon';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useDropOff } from '../context/DropOffContext';
+import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { LeafletMap } from '../components/LeafletMap';
+import { supabase } from '../services/supabase';
 import { getRelativeTime } from '../utils/date';
+import { confirmAction, errorMessage, notify } from '../utils/confirm';
 import {
-  fontSize, fontWeight, iconSize, layout, lineHeight, onAccentColor, radius, shadows, spacing, tint,
+  fontSize, fontWeight, iconSize, layout, lineHeight, onAccentColor, radius, semanticColors, shadows, spacing, tint,
 } from '../theme/designSystem';
 
 type RouteParams = { pointId: string };
@@ -28,10 +31,22 @@ export const DropOffDetailScreen: React.FC = () => {
   const route = useRoute();
   const { pointId } = (route.params ?? {}) as Partial<RouteParams>;
   const { theme } = useTheme();
-  const { points, loading } = useDropOff();
+  const { points, loading, remove } = useDropOff();
+  const { user } = useAuth();
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  // Mesmo critério das políticas do banco: profiles.role = 'admin'
+  useEffect(() => {
+    if (!user) return;
+    supabase.from('profiles').select('role').eq('id', user.id).single()
+      .then(({ data }) => setIsAdmin(data?.role === 'admin'));
+  }, [user]);
 
   const point = points.find((p) => p.id === pointId);
   const hasCoords = point?.latitude != null && point?.longitude != null;
+  const isOwner = !!user && point?.created_by === user.id;
+  const canDelete = isOwner || isAdmin;
 
   const backButton = (
     <Pressable
@@ -59,6 +74,25 @@ export const DropOffDetailScreen: React.FC = () => {
 
   const openDirections = () => {
     Linking.openURL(buildDirectionsUrl(point.address, point.latitude, point.longitude));
+  };
+
+  const handleDelete = async () => {
+    const confirmed = await confirmAction({
+      title: 'Excluir ponto de coleta',
+      message: `Tem certeza que deseja excluir "${point.name}"? Esta ação não pode ser desfeita.`,
+      confirmText: 'Excluir',
+      destructive: true,
+    });
+    if (!confirmed) return;
+
+    setDeleting(true);
+    try {
+      await remove(point.id);
+      navigation.goBack();
+    } catch (err) {
+      setDeleting(false);
+      notify('Erro', errorMessage(err, 'Não foi possível excluir o ponto de coleta.'));
+    }
   };
 
   return (
@@ -137,6 +171,27 @@ export const DropOffDetailScreen: React.FC = () => {
             )}
           </View>
 
+          {/* Exclusão: dono do ponto ou admin */}
+          {canDelete && (
+            <Pressable
+              onPress={handleDelete}
+              disabled={deleting}
+              accessibilityLabel="Excluir ponto de coleta"
+              style={({ pressed }) => [
+                styles.deleteBtn,
+                { borderColor: semanticColors.danger },
+                (pressed || deleting) && styles.pressed,
+              ]}
+            >
+              {deleting
+                ? <ActivityIndicator size="small" color={semanticColors.danger} />
+                : <Icon name="trash-2" size={iconSize.sm} color={semanticColors.danger} />}
+              <Text style={[styles.deleteText, { color: semanticColors.danger }]}>
+                {isOwner ? 'Excluir meu ponto' : 'Excluir ponto (admin)'}
+              </Text>
+            </Pressable>
+          )}
+
           <Text style={[styles.footnote, { color: theme.colors.textMuted }]}>
             Cadastrado {getRelativeTime(point.created_at)}
           </Text>
@@ -181,6 +236,11 @@ const styles = StyleSheet.create({
   },
   primaryText: { color: onAccentColor, fontSize: fontSize.md, fontWeight: fontWeight.semibold },
   pressed: { opacity: 0.85 },
+  deleteBtn: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm,
+    height: layout.controlHeight, borderRadius: radius.md, borderWidth: layout.borderWidth,
+  },
+  deleteText: { fontSize: fontSize.md, fontWeight: fontWeight.semibold },
 
   sectionTitle: { fontSize: fontSize.md, fontWeight: fontWeight.semibold },
   chipsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.xs },

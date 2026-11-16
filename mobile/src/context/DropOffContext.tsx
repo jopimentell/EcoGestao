@@ -53,8 +53,10 @@ export const DropOffProvider: React.FC<{ children: React.ReactNode }> = ({ child
   }, []);
 
   const remove = useCallback(async (id: string) => {
-    const { error } = await supabase.from('drop_off_points').delete().eq('id', id);
+    // .select() devolve as linhas apagadas: com RLS bloqueando, o Supabase não dá erro, só apaga 0 linhas
+    const { data, error } = await supabase.from('drop_off_points').delete().eq('id', id).select('id');
     if (error) throw error;
+    if (!data || data.length === 0) throw new Error('Você não tem permissão para excluir este ponto de coleta.');
     setPoints((prev) => prev.filter((p) => p.id !== id));
   }, []);
 

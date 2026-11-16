@@ -12,6 +12,7 @@ import { supabase } from '../services/supabase';
 import { BeamButton } from '../components/BeamButton';
 import { LeafletMap } from '../components/LeafletMap';
 import { ModernAlert } from '../components/ModernAlert';
+import { errorMessage } from '../utils/confirm';
 import { UserAvatar } from '../components/UserAvatar';
 import {
   DesktopBadge, DesktopCard, DesktopColumns, DesktopContainer, DesktopPageHeader,
@@ -139,8 +140,9 @@ function ReportDetailDesktop() {
       await deleteReport(reportId);
       setConfirmDelete(false);
       goBack();
-    } catch {
-      showAlert('Erro', 'Não foi possível deletar o report');
+    } catch (err) {
+      setConfirmDelete(false);
+      showAlert('Erro', errorMessage(err, 'Não foi possível deletar o report'));
     } finally {
       setUpdating(false);
     }

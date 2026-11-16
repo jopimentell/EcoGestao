@@ -266,14 +266,19 @@ export function ReportsProvider({ children }: { children: ReactNode }) {
   };
 
   const deleteReport = async (id: string) => {
-    const { error } = await supabase
+    // .select() devolve as linhas apagadas: com RLS bloqueando, o Supabase não dá erro, só apaga 0 linhas
+    const { data, error } = await supabase
       .from('reports')
       .delete()
-      .eq('id', id);
+      .eq('id', id)
+      .select('id');
 
     if (error) {
       console.error('Erro ao deletar report:', error);
       throw error;
+    }
+    if (!data || data.length === 0) {
+      throw new Error('Você não tem permissão para excluir esta ocorrência.');
     }
 
     await fetchReports();

@@ -20,6 +20,7 @@ import { useReports } from '../context/ReportsContext';
 import { useTheme } from '../context/ThemeContext';
 import { supabase } from '../services/supabase';
 import { BeamButton } from '../components/BeamButton';
+import { confirmAction, errorMessage, notify } from '../utils/confirm';
 import { theme as staticTheme } from '../theme/tokens';
 import { semanticColors, severityColors, statusColors } from '../theme/designSystem';
 
@@ -177,33 +178,29 @@ export const ReportDetailScreen = () => {
   const handleDelete = async () => {
     if (!deleteReport) return;
     
-    const deleteMessage = isOwner && !isAdmin 
+    const deleteMessage = isOwner && !isAdmin
       ? 'Tem certeza que deseja deletar seu report? Esta ação não pode ser desfeita.'
       : 'Tem certeza que deseja deletar este report? (Admin)';
-    
-    Alert.alert(
-      'Confirmar exclusão',
-      deleteMessage,
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Deletar',
-          style: 'destructive',
-          onPress: async () => {
-            setUpdating(true);
-            try {
-              await deleteReport(reportId);
-              Alert.alert('Sucesso', isOwner ? 'Seu report foi deletado' : 'Report deletado com sucesso');
-              navigation.goBack();
-            } catch (error) {
-              Alert.alert('Erro', 'Não foi possível deletar o report');
-            } finally {
-              setUpdating(false);
-            }
-          },
-        },
-      ]
-    );
+
+    // confirmAction funciona também no navegador (Alert.alert com botões não aparece na web)
+    const confirmed = await confirmAction({
+      title: 'Confirmar exclusão',
+      message: deleteMessage,
+      confirmText: 'Deletar',
+      destructive: true,
+    });
+    if (!confirmed) return;
+
+    setUpdating(true);
+    try {
+      await deleteReport(reportId);
+      notify('Sucesso', isOwner ? 'Seu report foi deletado' : 'Report deletado com sucesso');
+      navigation.goBack();
+    } catch (error) {
+      notify('Erro', errorMessage(error, 'Não foi possível deletar o report'));
+    } finally {
+      setUpdating(false);
+    }
   };
 
   if (loading) {
